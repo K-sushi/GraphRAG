@@ -1,0 +1,438 @@
+# -----------------------------------------------------------------------------
+# LightRAG System Configuration
+# GraphRAG Implementation with CLAUDEFLOW Integration
+# -----------------------------------------------------------------------------
+
+lightrag:
+  # -----------------------------------------------------------------------------
+  # Core System Settings
+  # -----------------------------------------------------------------------------
+  system:
+    working_dir: "./lightrag_cache"
+    workspace: "graphrag_production"
+    log_level: "INFO"
+    enable_debug: false
+    
+    # Cache and Data Management
+    enable_llm_cache: true
+    enable_llm_cache_for_entity_extract: true
+    cache_ttl_hours: 24
+    
+    # Performance Settings
+    max_parallel_insert: 8
+    entity_extract_max_gleaning: 1
+
+  # -----------------------------------------------------------------------------
+  # Document Processing Configuration
+  # -----------------------------------------------------------------------------
+  document_processing:
+    # Chunking Settings
+    chunk_token_size: 1200
+    chunk_overlap_token_size: 100
+    
+    # Tokenizer Configuration
+    tokenizer: "tiktoken"
+    tiktoken_model_name: "gpt-4o-mini"
+    
+    # Supported File Types
+    supported_formats:
+      - "pdf"
+      - "txt"
+      - "md"
+      - "docx"
+      - "html"
+      - "json"
+      - "csv"
+    
+    # RAG-Anything Integration (Multimodal)
+    multimodal:
+      enable: true
+      supported_types:
+        - "images"
+        - "tables"
+        - "mathematical_expressions"
+        - "charts_graphs"
+      ocr_provider: "mistral"  # Optional: for scanned PDFs
+
+  # -----------------------------------------------------------------------------
+  # Storage Configuration
+  # -----------------------------------------------------------------------------
+  storage:
+    # Key-Value Storage for Documents and Chunks
+    kv_storage:
+      type: "JsonKVStorage"  # Options: JsonKVStorage, PGKVStorage, RedisKVStorage, MongoKVStorage
+      config:
+        file_path: "kv_store.json"
+        backup_enabled: true
+        backup_interval_hours: 6
+    
+    # Vector Storage for Embeddings
+    vector_storage:
+      type: "NanoVectorDBStorage"  # Options: NanoVectorDBStorage, PGVectorStorage, MilvusVectorDBStorage, ChromaVectorDBStorage, FaissVectorDBStorage
+      config:
+        dimension: 1536
+        metric: "cosine"
+        index_params:
+          ef_construction: 200
+          m: 16
+        enable_backup: true
+    
+    # Graph Storage for Entities and Relations
+    graph_storage:
+      type: "NetworkXStorage"  # Options: NetworkXStorage, Neo4JStorage, PGGraphStorage, AGEStorage
+      config:
+        file_path: "graph.pkl"
+        backup_enabled: true
+        enable_visualization: true
+    
+    # Document Status Storage
+    doc_status_storage:
+      type: "JsonDocStatusStorage"  # Options: JsonDocStatusStorage, PGDocStatusStorage, MongoDocStatusStorage
+      config:
+        file_path: "doc_status.json"
+
+  # -----------------------------------------------------------------------------
+  # Production Storage Configuration (Alternative)
+  # -----------------------------------------------------------------------------
+  production_storage:
+    # PostgreSQL Configuration
+    postgresql:
+      enabled: false
+      connection:
+        host: "localhost"
+        port: 5432
+        database: "lightrag_production"
+        username: "${POSTGRES_USER}"
+        password: "${POSTGRES_PASSWORD}"
+        ssl_mode: "require"
+      
+      # Table Configuration
+      tables:
+        kv_storage: "lightrag_kv_store"
+        vector_storage: "lightrag_vectors"
+        graph_storage: "lightrag_graph"
+        doc_status: "lightrag_doc_status"
+    
+    # Neo4j Configuration
+    neo4j:
+      enabled: false
+      connection:
+        uri: "bolt://localhost:7687"
+        username: "${NEO4J_USER}"
+        password: "${NEO4J_PASSWORD}"
+        database: "lightrag"
+      
+      # Graph Configuration
+      node_labels:
+        entity: "Entity"
+        document: "Document"
+      relationship_types:
+        related_to: "RELATED_TO"
+        part_of: "PART_OF"
+
+  # -----------------------------------------------------------------------------
+  # LLM Configuration
+  # -----------------------------------------------------------------------------
+  llm:
+    # Default Model Settings
+    model_name: "gemini-2.5-flash"  # Default to cost-effective model
+    model_func: "gemini_complete"
+    
+    # Context and Token Management
+    context_length_tokens: 64000
+    summary_max_tokens: 32000
+    max_output_tokens: 2048
+    
+    # Async and Concurrency Settings
+    llm_model_max_async: 8
+    llm_request_timeout: 30
+    
+    # Model-Specific Parameters
+    model_kwargs:
+      temperature: 0.7
+      top_p: 0.9
+      top_k: 40
+      safety_settings:
+        - category: "HARM_CATEGORY_HARASSMENT"
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+        - category: "HARM_CATEGORY_HATE_SPEECH"
+          threshold: "BLOCK_MEDIUM_AND_ABOVE"
+    
+    # Model Selection Strategy
+    model_selection:
+      ingestion_model: "gemini-2.5-flash-lite"  # Cost-effective for bulk processing
+      query_model: "gemini-2.5-flash"          # Balanced for queries
+      complex_analysis_model: "gemini-2.5-pro" # High-quality for complex tasks
+      
+      # Auto-selection criteria
+      auto_selection:
+        enable: true
+        criteria:
+          document_size_threshold: 10000  # tokens
+          query_complexity_threshold: 5   # estimated complexity score
+          batch_size_threshold: 50        # number of documents
+
+  # -----------------------------------------------------------------------------
+  # Embedding Configuration
+  # -----------------------------------------------------------------------------
+  embedding:
+    # Embedding Function
+    embedding_func: "openai_embed"
+    model_name: "text-embedding-3-large"
+    
+    # Batch Processing
+    embedding_batch_num: 32
+    embedding_func_max_async: 16
+    
+    # Caching
+    embedding_cache_config:
+      enabled: true
+      similarity_threshold: 0.95
+      use_llm_check: false
+    
+    # Alternative Embedding Models
+    alternative_models:
+      multilingual: "BAAI/bge-m3"
+      lightweight: "sentence-transformers/all-MiniLM-L6-v2"
+      high_performance: "text-embedding-3-large"
+
+  # -----------------------------------------------------------------------------
+  # Query Configuration
+  # -----------------------------------------------------------------------------
+  query:
+    # Default Query Mode
+    default_mode: "mix"  # Options: local, global, hybrid, naive, mix, bypass
+    
+    # Retrieval Parameters
+    top_k: 10
+    chunk_top_k: 20
+    
+    # Token Limits for Query Context
+    max_entity_tokens: 8000
+    max_relation_tokens: 4000
+    max_total_tokens: 16000
+    
+    # Reranking
+    enable_rerank: true
+    reranker_model: "BAAI/bge-reranker-v2-m3"
+    rerank_top_k: 10
+    
+    # Query Enhancement
+    query_enhancement:
+      enable_expansion: true
+      enable_reformulation: true
+      max_expansions: 3
+
+  # -----------------------------------------------------------------------------
+  # API Server Configuration
+  # -----------------------------------------------------------------------------
+  api_server:
+    host: "0.0.0.0"
+    port: 8000
+    workers: 4
+    
+    # CORS Settings
+    cors:
+      allow_origins:
+        - "http://localhost:3000"
+        - "http://localhost:5678"  # n8n
+        - "https://your-frontend-domain.com"
+      allow_methods:
+        - "GET"
+        - "POST"
+        - "PUT"
+        - "DELETE"
+        - "OPTIONS"
+      allow_headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-API-Key"
+    
+    # Rate Limiting
+    rate_limiting:
+      enabled: true
+      requests_per_minute: 100
+      requests_per_hour: 1000
+    
+    # Authentication
+    authentication:
+      enabled: true
+      api_key_header: "X-API-Key"
+      api_keys:
+        - "${LIGHTRAG_API_KEY}"
+        - "${N8N_API_KEY}"
+    
+    # Endpoints Configuration
+    endpoints:
+      health: "/health"
+      metrics: "/metrics"
+      insert: "/insert"
+      query: "/query"
+      delete: "/delete"
+      status: "/status"
+      admin: "/admin"
+
+  # -----------------------------------------------------------------------------
+  # Monitoring and Logging
+  # -----------------------------------------------------------------------------
+  monitoring:
+    # Metrics Collection
+    enable_metrics: true
+    metrics_endpoint: "/metrics"  # Prometheus compatible
+    
+    # Health Checks
+    health_checks:
+      enabled: true
+      check_interval_seconds: 30
+      components:
+        - "database_connection"
+        - "llm_availability"
+        - "embedding_service"
+        - "vector_store"
+        - "graph_store"
+    
+    # Performance Monitoring
+    performance:
+      track_query_latency: true
+      track_insertion_time: true
+      track_token_usage: true
+      enable_profiling: false
+    
+    # Alerting
+    alerting:
+      enabled: true
+      webhook_url: "${ALERT_WEBHOOK_URL}"
+      alert_conditions:
+        high_error_rate: 0.05
+        slow_query_threshold_ms: 5000
+        high_token_usage_per_hour: 100000
+
+  # -----------------------------------------------------------------------------
+  # Security Configuration
+  # -----------------------------------------------------------------------------
+  security:
+    # Input Validation
+    input_validation:
+      max_document_size_mb: 50
+      max_query_length: 10000
+      allowed_file_extensions:
+        - ".pdf"
+        - ".txt"
+        - ".md"
+        - ".docx"
+        - ".html"
+      
+      # Content Filtering
+      content_filtering:
+        enabled: true
+        block_sensitive_content: true
+        pii_detection: true
+    
+    # Data Privacy
+    data_privacy:
+      enable_data_encryption: true
+      encryption_key: "${ENCRYPTION_KEY}"
+      anonymize_logs: true
+      data_retention_days: 90
+    
+    # Network Security
+    network:
+      enable_ssl: true
+      ssl_cert_path: "${SSL_CERT_PATH}"
+      ssl_key_path: "${SSL_KEY_PATH}"
+      require_https: true
+
+  # -----------------------------------------------------------------------------
+  # Integration Settings
+  # -----------------------------------------------------------------------------
+  integrations:
+    # n8n Integration
+    n8n:
+      enabled: true
+      webhook_endpoints:
+        - "/webhook/n8n/insert"
+        - "/webhook/n8n/query"
+      authentication:
+        type: "bearer_token"
+        token: "${N8N_WEBHOOK_TOKEN}"
+    
+    # External APIs
+    external_apis:
+      openai:
+        api_key: "${OPENAI_API_KEY}"
+        base_url: "https://api.openai.com/v1"
+      
+      gemini:
+        api_key: "${GEMINI_API_KEY}"
+        base_url: "https://generativelanguage.googleapis.com/v1beta"
+      
+      huggingface:
+        api_key: "${HUGGINGFACE_API_KEY}"
+        base_url: "https://api-inference.huggingface.co"
+
+  # -----------------------------------------------------------------------------
+  # Development and Testing
+  # -----------------------------------------------------------------------------
+  development:
+    # Debug Settings
+    debug_mode: false
+    verbose_logging: false
+    save_intermediate_results: false
+    
+    # Testing Configuration
+    test_mode: false
+    mock_llm_responses: false
+    test_data_path: "./tests/data"
+    
+    # Development Tools
+    enable_admin_ui: true
+    admin_ui_port: 8001
+    enable_api_docs: true  # Swagger/OpenAPI
+
+# -----------------------------------------------------------------------------
+# Environment-Specific Overrides
+# -----------------------------------------------------------------------------
+environments:
+  development:
+    lightrag:
+      system:
+        log_level: "DEBUG"
+        enable_debug: true
+      storage:
+        kv_storage:
+          type: "JsonKVStorage"
+        vector_storage:
+          type: "NanoVectorDBStorage"
+        graph_storage:
+          type: "NetworkXStorage"
+  
+  production:
+    lightrag:
+      system:
+        log_level: "INFO"
+        enable_debug: false
+      storage:
+        kv_storage:
+          type: "PGKVStorage"
+        vector_storage:
+          type: "PGVectorStorage"
+        graph_storage:
+          type: "Neo4JStorage"
+      api_server:
+        workers: 8
+      security:
+        network:
+          require_https: true
+
+# -----------------------------------------------------------------------------
+# Feature Flags
+# -----------------------------------------------------------------------------
+feature_flags:
+  multimodal_processing: true
+  hybrid_search: true
+  auto_model_selection: true
+  real_time_updates: false
+  batch_processing: true
+  advanced_caching: true
+  custom_embeddings: false
+  experimental_features: false

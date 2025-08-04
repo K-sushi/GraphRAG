@@ -1,0 +1,270 @@
+# -----------------------------------------------------------------------------
+# GraphRAG Implementation - Development Docker Compose
+# Lightweight setup for development and testing
+# -----------------------------------------------------------------------------
+
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # LightRAG Server (Development)
+  # ===========================================================================
+  lightrag-dev:
+    container_name: lightrag-dev
+    build:
+      context: ../../lightrag/server
+      dockerfile: Dockerfile
+      target: development  # Multi-stage build target
+    ports:
+      - "8000:8000"
+      - "8001:8001"  # Admin UI
+    environment:
+      # Development Settings
+      - NODE_ENV=development
+      - DEBUG=true
+      - LOG_LEVEL=debug
+      - LIGHTRAG_WORKING_DIR=/app/cache
+      - LIGHTRAG_WORKSPACE=graphrag_dev
+      
+      # Use lightweight storage for development
+      - STORAGE_TYPE=json
+      - VECTOR_STORAGE_TYPE=nano
+      - GRAPH_STORAGE_TYPE=networkx
+      
+      # API Keys (development)
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # Enable development features
+      - ENABLE_ADMIN_UI=true
+      - ENABLE_DEBUG_ENDPOINTS=true
+      - MOCK_MODE=${MOCK_MODE:-false}
+    
+    volumes:
+      - ../../lightrag/server:/app  # Live code reload
+      - ./volumes/dev/lightrag:/app/cache
+      - ./logs:/app/logs
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+    
+    # Hot reload support
+    command: >
+      sh -c "pip install watchdog && 
+             python -m watchdog --patterns='*.py' --recursive --ignore-patterns='*/.*' 
+             --command='python app.py' ."
+
+  # ===========================================================================
+  # n8n Development Server
+  # ===========================================================================
+  n8n-dev:
+    container_name: n8n-dev
+    image: n8nio/n8n:latest
+    ports:
+      - "5678:5678"
+    environment:
+      # Development Settings
+      - NODE_ENV=development
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678/
+      
+      # Disable auth for development
+      - N8N_BASIC_AUTH_ACTIVE=false
+      
+      # Use file-based storage for development
+      - DB_TYPE=sqlite
+      - DB_SQLITE_DATABASE=/home/node/.n8n/database.sqlite
+      
+      # Simple execution mode
+      - EXECUTIONS_MODE=regular
+      - EXECUTIONS_DATA_MAX_AGE=24
+      
+      # Development Features
+      - N8N_LOG_LEVEL=debug
+      - N8N_DIAGNOSTICS_ENABLED=true
+      
+      # External API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      
+      # LightRAG Integration
+      - LIGHTRAG_API_URL=http://lightrag-dev:8000
+      - LIGHTRAG_API_KEY=dev_api_key
+      
+      # Timezone
+      - TZ=Asia/Tokyo
+    
+    volumes:
+      - ./volumes/dev/n8n:/home/node/.n8n
+      - ../../n8n/workflows:/home/node/.n8n/workflows
+      - ../../n8n/templates:/home/node/.n8n/templates
+    
+    depends_on:
+      - lightrag-dev
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+
+  # ===========================================================================
+  # PostgreSQL (Optional for Development)
+  # ===========================================================================
+  postgres-dev:
+    container_name: postgres-dev
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=graphrag_dev
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=dev_password
+    
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+    
+    profiles:
+      - database
+
+  # ===========================================================================
+  # Redis (Optional for Development)
+  # ===========================================================================
+  redis-dev:
+    container_name: redis-dev
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    
+    command: redis-server --save 60 1 --loglevel warning
+    
+    volumes:
+      - redis-dev-data:/data
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+    
+    profiles:
+      - cache
+
+  # ===========================================================================
+  # Neo4j (Optional for Development)
+  # ===========================================================================
+  neo4j-dev:
+    container_name: neo4j-dev
+    image: neo4j:5-community
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/dev_password
+      - NEO4J_dbms_default__database=graphrag_dev
+      - NEO4J_dbms_memory_heap_initial__size=256m
+      - NEO4J_dbms_memory_heap_max__size=512m
+      - NEO4J_dbms_memory_pagecache_size=256m
+    
+    volumes:
+      - neo4j-dev-data:/data
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+    
+    profiles:
+      - graph
+
+  # ===========================================================================
+  # Development Tools
+  # ===========================================================================
+  
+  # Jupyter Notebook for Data Analysis
+  jupyter:
+    container_name: jupyter-dev
+    image: jupyter/scipy-notebook:latest
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=graphrag_dev_token
+    
+    volumes:
+      - ../../examples:/home/jovyan/examples
+      - ../../tests:/home/jovyan/tests
+      - ./volumes/dev/jupyter:/home/jovyan/work
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+    
+    profiles:
+      - tools
+
+  # Adminer for Database Management
+  adminer:
+    container_name: adminer-dev
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=postgres-dev
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+    
+    profiles:
+      - tools
+
+  # Redis Commander for Redis Management
+  redis-commander:
+    container_name: redis-commander-dev
+    image: rediscommander/redis-commander:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - REDIS_HOSTS=local:redis-dev:6379
+    
+    depends_on:
+      - redis-dev
+    
+    networks:
+      - graphrag-dev
+    
+    restart: unless-stopped
+    
+    profiles:
+      - tools
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  graphrag-dev:
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  postgres-dev-data:
+    driver: local
+  redis-dev-data:
+    driver: local
+  neo4j-dev-data:
+    driver: local

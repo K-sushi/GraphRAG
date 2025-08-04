@@ -1,0 +1,644 @@
+{
+  "name": "GraphRAG Document Ingestion Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "folderId": "={{ $vars.GOOGLE_DRIVE_FOLDER_ID }}",
+        "options": {
+          "fileTypeFilter": ["pdf", "docx", "txt", "md", "html"]
+        }
+      },
+      "id": "1a2b3c4d-5e6f-7g8h-9i10-j11k12l13m14",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 3,
+      "position": [220, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth",
+          "name": "Google Drive OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "file_size_check",
+              "leftValue": "={{ $json.size }}",
+              "rightValue": 52428800,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            },
+            {
+              "id": "file_type_check",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": [
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "text/plain",
+                "text/markdown",
+                "text/html"
+              ],
+              "operator": {
+                "type": "array",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2b3c4d5e-6f7g-8h9i-10j1-1k2l3m4n5o6p",
+      "name": "File Validation",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.id }}"
+      },
+      "id": "3c4d5e6f-7g8h-9i10-j11k-12l3m4n5o6p7",
+      "name": "Download File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [660, 300],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth",
+          "name": "Google Drive OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "pdf_check",
+              "leftValue": "={{ $json.mimeType }}",
+              "rightValue": "application/pdf",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4d5e6f7g-8h9i-10j1-1k2l-3m4n5o6p7q8r",
+      "name": "Content Extraction Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "operation": "extractText",
+        "binaryPropertyName": "data",
+        "options": {}
+      },
+      "id": "5e6f7g8h-9i10-j11k-12l3-m4n5o6p7q8r9",
+      "name": "Extract PDF Text",
+      "type": "n8n-nodes-base.pdfExtract",
+      "typeVersion": 1,
+      "position": [1100, 200]
+    },
+    {
+      "parameters": {
+        "operation": "readBinaryFile",
+        "options": {}
+      },
+      "id": "6f7g8h9i-10j1-1k2l-3m4n-5o6p7q8r9s10",
+      "name": "Read Text File",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [1100, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate SHA-256 hash of content\nconst crypto = require('crypto');\n\nfor (const item of $input.all()) {\n  const content = item.json.text || item.json.content || '';\n  const hash = crypto.createHash('sha256').update(content).digest('hex');\n  \n  item.json.content = content;\n  item.json.content_hash = hash;\n  item.json.file_id = item.json.id;\n  item.json.processed_at = new Date().toISOString();\n}\n\nreturn $input.all();"
+      },
+      "id": "7g8h9i10-j11k-12l3-m4n5-o6p7q8r9s10t",
+      "name": "Generate Content Hash",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "query": "SELECT id, content_hash FROM record_manager WHERE content_hash = $1",
+        "additionalFields": {
+          "queryParameters": "={{ [$json.content_hash] }}"
+        }
+      },
+      "id": "8h9i10j1-1k2l-3m4n-5o6p-7q8r9s10t11u",
+      "name": "Check Duplicate",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1540, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_api",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "duplicate_check",
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9i10j11k-12l3-m4n5-o6p7-q8r9s10t11u12",
+      "name": "Is New Document",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1760, 300]
+    },
+    {
+      "parameters": {
+        "model": "gemini-2.5-flash",
+        "prompt": "以下のドキュメントから重要なメタデータを抽出してください:\\n\\nコンテンツ: {{ $json.content }}\\n\\n以下の形式でJSONを返してください:\\n{\\n  \"title\": \"ドキュメントのタイトル\",\\n  \"summary\": \"100文字以内の要約\",\\n  \"keywords\": [\"キーワード1\", \"キーワード2\"],\\n  \"category\": \"カテゴリ\",\\n  \"language\": \"言語コード\",\\n  \"entities\": [\"エンティティ1\", \"エンティティ2\"]\\n}",
+        "temperature": 0.3,
+        "maxTokens": 1000,
+        "options": {}
+      },
+      "id": "10j11k12-l3m4-n5o6-p7q8-r9s10t11u12v",
+      "name": "Extract Metadata (Gemini)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gemini_api_auth",
+          "name": "Gemini API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Chunk text with contextualization\nconst CHUNK_SIZE = 1200;\nconst OVERLAP = 100;\n\nfor (const item of $input.all()) {\n  const content = item.json.content;\n  const metadata = item.json.metadata || {};\n  const chunks = [];\n  \n  // Simple chunking algorithm\n  const words = content.split(' ');\n  let currentChunk = [];\n  let currentLength = 0;\n  \n  for (let i = 0; i < words.length; i++) {\n    const word = words[i];\n    const wordLength = word.length + 1; // +1 for space\n    \n    if (currentLength + wordLength > CHUNK_SIZE && currentChunk.length > 0) {\n      // Create chunk with context\n      const chunkText = currentChunk.join(' ');\n      const contextualizedChunk = `Document Title: ${metadata.title || 'Unknown'}\\nCategory: ${metadata.category || 'General'}\\n\\nContent: ${chunkText}`;\n      \n      chunks.push({\n        chunk_id: chunks.length,\n        content: contextualizedChunk,\n        raw_content: chunkText,\n        start_index: i - currentChunk.length,\n        end_index: i - 1,\n        metadata: metadata\n      });\n      \n      // Keep overlap\n      const overlapWords = currentChunk.slice(-OVERLAP);\n      currentChunk = overlapWords.concat([word]);\n      currentLength = overlapWords.join(' ').length + wordLength;\n    } else {\n      currentChunk.push(word);\n      currentLength += wordLength;\n    }\n  }\n  \n  // Add final chunk\n  if (currentChunk.length > 0) {\n    const chunkText = currentChunk.join(' ');\n    const contextualizedChunk = `Document Title: ${metadata.title || 'Unknown'}\\nCategory: ${metadata.category || 'General'}\\n\\nContent: ${chunkText}`;\n    \n    chunks.push({\n      chunk_id: chunks.length,\n      content: contextualizedChunk,\n      raw_content: chunkText,\n      start_index: words.length - currentChunk.length,\n      end_index: words.length - 1,\n      metadata: metadata\n    });\n  }\n  \n  // Return all chunks as separate items\n  chunks.forEach((chunk, index) => {\n    $input.all()[0].json.chunks = $input.all()[0].json.chunks || [];\n    $input.all()[0].json.chunks.push(chunk);\n  });\n}\n\nreturn $input.all();"
+      },
+      "id": "11k12l3m-4n5o-6p7q-8r9s-10t11u12v13w",
+      "name": "Chunking & Contextualization",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2200, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.LIGHTRAG_API_URL }}/insert",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $secrets.LIGHTRAG_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "content": "={{ $json.content }}",
+          "metadata": "={{ $json.metadata }}"
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "12l3m4n5-o6p7-q8r9-s10t-11u12v13w14x",
+      "name": "LightRAG Insertion",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2420, 100],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "lightrag_api_auth",
+          "name": "LightRAG API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "table": "documents_v2",
+        "columnToMatchOn": "id",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "content",
+              "fieldValue": "={{ $json.content }}"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={{ $json.metadata }}"
+            },
+            {
+              "fieldId": "embedding",
+              "fieldValue": "={{ $json.embedding }}"
+            },
+            {
+              "fieldId": "file_id",
+              "fieldValue": "={{ $json.file_id }}"
+            },
+            {
+              "fieldId": "content_hash",
+              "fieldValue": "={{ $json.content_hash }}"
+            }
+          ]
+        }
+      },
+      "id": "13m4n5o6-p7q8-r9s1-0t11-u12v13w14x15",
+      "name": "Vector Store Upsert",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2420, 200],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_api",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "table": "record_manager",
+        "columnToMatchOn": "source_id",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "source_id",
+              "fieldValue": "={{ $json.file_id }}"
+            },
+            {
+              "fieldId": "content_hash",
+              "fieldValue": "={{ $json.content_hash }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "processed"
+            },
+            {
+              "fieldId": "processed_at",
+              "fieldValue": "={{ $json.processed_at }}"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={{ $json.metadata }}"
+            }
+          ]
+        }
+      },
+      "id": "14n5o6p7-q8r9-s10t-11u1-2v13w14x15y16",
+      "name": "Record Management",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2420, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_api",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": "={{ $json.file_id }}",
+        "driveId": {
+          "__rl": true,
+          "value": "={{ $vars.GOOGLE_DRIVE_PROCESSED_FOLDER }}",
+          "mode": "id"
+        }
+      },
+      "id": "15o6p7q8-r9s1-0t11-u12v-13w14x15y16z",
+      "name": "Move to Processed",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2640, 200],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth",
+          "name": "Google Drive OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "✅ Document processing completed successfully\\n\\n**File:** {{ $json.name }}\\n**Size:** {{ Math.round($json.size / 1024) }} KB\\n**Chunks:** {{ $json.chunks?.length || 0 }}\\n**Status:** Processed and indexed\\n**Time:** {{ $now }}",
+        "options": {}
+      },
+      "id": "16p7q8r9-s10t-11u1-2v13-w14x15y16z17a",
+      "name": "Success Notification",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [2640, 300],
+      "credentials": {
+        "discordWebhook": {
+          "id": "discord_webhook",
+          "name": "GraphRAG Discord Webhook"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": "={{ $json.file_id }}",
+        "driveId": {
+          "__rl": true,
+          "value": "={{ $vars.GOOGLE_DRIVE_ERRORS_FOLDER }}",
+          "mode": "id"
+        }
+      },
+      "id": "17q8r9s1-0t11-u12v-13w1-4x15y16z17a18",
+      "name": "Move to Error Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2200, 500],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "google_drive_oauth",
+          "name": "Google Drive OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "❌ Document processing failed\\n\\n**File:** {{ $json.name }}\\n**Error:** {{ $json.error?.message || 'Unknown error' }}\\n**Time:** {{ $now }}",
+        "options": {}
+      },
+      "id": "18r9s10t-11u1-2v13-w14x-15y16z17a18b",
+      "name": "Error Notification",
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [2420, 500],
+      "credentials": {
+        "discordWebhook": {
+          "id": "discord_webhook",
+          "name": "GraphRAG Discord Webhook"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "File Validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Validation": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Move to Error Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "Content Extraction Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Extraction Switch": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read Text File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Generate Content Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Text File": {
+      "main": [
+        [
+          {
+            "node": "Generate Content Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Content Hash": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Is New Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Document": {
+      "main": [
+        [
+          {
+            "node": "Extract Metadata (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Extract Metadata (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "Chunking & Contextualization",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunking & Contextualization": {
+      "main": [
+        [
+          {
+            "node": "LightRAG Insertion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Vector Store Upsert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Record Management",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LightRAG Insertion": {
+      "main": [
+        [
+          {
+            "node": "Move to Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Upsert": {
+      "main": [
+        [
+          {
+            "node": "Success Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move to Error Folder": {
+      "main": [
+        [
+          {
+            "node": "Error Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "error-handler-workflow"
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "graphrag-implementation"
+  },
+  "id": "document-ingestion-workflow",
+  "tags": [
+    {
+      "createdAt": "2024-08-04T12:30:00.000Z",
+      "updatedAt": "2024-08-04T12:30:00.000Z",
+      "id": "lightrag",
+      "name": "LightRAG"
+    },
+    {
+      "createdAt": "2024-08-04T12:30:00.000Z",
+      "updatedAt": "2024-08-04T12:30:00.000Z",
+      "id": "document-processing",
+      "name": "Document Processing"
+    },
+    {
+      "createdAt": "2024-08-04T12:30:00.000Z",
+      "updatedAt": "2024-08-04T12:30:00.000Z",
+      "id": "graphrag",
+      "name": "GraphRAG"
+    }
+  ]
+}

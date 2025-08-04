@@ -1,0 +1,355 @@
+# -----------------------------------------------------------------------------
+# Gemini 2.5 Models Configuration for GraphRAG Implementation
+# LightRAG + n8n integration with CLAUDEFLOW optimization
+# -----------------------------------------------------------------------------
+
+gemini_models:
+  # -----------------------------------------------------------------------------
+  # Gemini 2.5 Pro - 高度な推論とマルチモーダル理解
+  # -----------------------------------------------------------------------------
+  gemini_2_5_pro:
+    name: "Gemini 2.5 Pro"
+    model_id: "gemini-2.5-pro"
+    type: "LLM / Multimodal LLM"
+    description: "思考と推論の強化、マルチモーダルな理解、高度なコーディングなど、複雑なタスクに適したモデル"
+    
+    # 入出力モダリティ
+    input_modalities:
+      - "テキスト"
+      - "画像"
+      - "音声"
+      - "動画"
+      - "PDF"
+    output_modalities:
+      - "テキスト"
+    
+    # 推奨用途
+    recommended_use_cases:
+      - "LightRAGにおけるエンティティ・関係の高度な抽出"
+      - "複雑なクエリに対する多段階推論と回答生成"
+      - "マルチモーダル文書からの情報抽出（RAG-Anything連携時）"
+      - "生成されたSQLスクリプトの評価と修正"
+      - "システム設計とアーキテクチャ分析"
+    
+    # LightRAG統合設定
+    lightrag_integration:
+      llm_model_name: "gemini-2.5-pro"
+      context_length_tokens: 64000
+      temperature: 0.4
+      max_output_tokens: 2048
+      summary_max_tokens: 32000
+      llm_model_kwargs:
+        temperature: 0.4
+        max_output_tokens: 2048
+        safety_settings:
+          - category: "HARM_CATEGORY_HARASSMENT"
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+          - category: "HARM_CATEGORY_HATE_SPEECH"
+            threshold: "BLOCK_MEDIUM_AND_ABOVE"
+      
+      # 非同期処理設定
+      llm_model_max_async: 4
+      entity_extract_max_gleaning: 1
+    
+    # n8n統合設定
+    n8n_integration:
+      ai_agent_setup:
+        model: "custom_gemini_2_5_pro_api_call"
+        temperature: 0.4
+        max_tokens: 2048
+        system_message: |
+          あなたは高度な推論能力を持つAIエージェントです。
+          提供された情報を基に、包括的かつ正確な回答を生成してください。
+          情報が不足している場合は、それを明確に示してください。
+      
+      # ツール統合例
+      tool_integration:
+        tool_name: "Gemini_Pro_Reasoning_Tool"
+        description: "高度な推論と分析のためのGemini 2.5 Pro API呼び出し"
+        method: "POST"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ $secrets.GEMINI_API_KEY }}"
+        body:
+          contents:
+            - parts:
+                - text: "{{ $json.query }}"
+          generationConfig:
+            temperature: 0.4
+            maxOutputTokens: 2048
+      
+      # 役割定義
+      roles:
+        data_ingestion: "高度なメタデータ抽出、要約、チャンクのコンテキスト化"
+        query_routing: "複雑なクエリルーティングの決定"
+        analysis: "システム全体の包括的分析"
+    
+    # API要件
+    api_requirements:
+      - "Google Cloud Project with Gemini API enabled"
+      - "適切なAPIキーと認証設定"
+      - "レート制限への対応実装"
+      - "エラーハンドリングとリトライ機能"
+    
+    # パフォーマンス指標
+    performance_metrics:
+      estimated_cost_per_1k_tokens: 0.001  # 推定値
+      avg_response_time_ms: 2000
+      context_window: 1000000
+      max_concurrent_requests: 60
+
+  # -----------------------------------------------------------------------------
+  # Gemini 2.5 Flash - 高速処理と費用対効果
+  # -----------------------------------------------------------------------------
+  gemini_2_5_flash:
+    name: "Gemini 2.5 Flash"
+    model_id: "gemini-2.5-flash"
+    type: "LLM / Multimodal LLM"
+    description: "適応思考、費用対効果に優れ、高速な応答が求められるタスクに適したモデル"
+    
+    # 入出力モダリティ
+    input_modalities:
+      - "テキスト"
+      - "画像"
+      - "音声"
+      - "動画"
+    output_modalities:
+      - "テキスト"
+    
+    # 推奨用途
+    recommended_use_cases:
+      - "LightRAGにおける高速なエンティティ・関係抽出（特にインジェッション時）"
+      - "迅速なRAG回答生成"
+      - "リアルタイムチャットボット統合"
+      - "大量のデータからのクイック要約生成"
+      - "ドキュメント処理の自動化"
+    
+    # LightRAG統合設定
+    lightrag_integration:
+      llm_model_name: "gemini-2.5-flash"
+      context_length_tokens: 64000
+      temperature: 0.7
+      max_output_tokens: 1024
+      summary_max_tokens: 16000
+      llm_model_kwargs:
+        temperature: 0.7
+        max_output_tokens: 1024
+        top_p: 0.9
+        top_k: 40
+      
+      # 非同期処理設定
+      llm_model_max_async: 8
+      entity_extract_max_gleaning: 1
+    
+    # n8n統合設定
+    n8n_integration:
+      ai_agent_setup:
+        model: "custom_gemini_2_5_flash_api_call"
+        temperature: 0.7
+        max_tokens: 1024
+        system_message: |
+          あなたは迅速な情報提供に特化したAIエージェントです。
+          与えられた情報を簡潔にまとめ、素早く回答してください。
+          情報が見つからない場合は、それを明確に伝えてください。
+      
+      # 役割定義
+      roles:
+        data_ingestion: "大量文書の初期チャンキングとエンティティ抽出"
+        query_routing: "高速なツール選択と簡単な情報検索"
+        realtime_processing: "リアルタイム処理と応答生成"
+    
+    # パフォーマンス指標
+    performance_metrics:
+      estimated_cost_per_1k_tokens: 0.0005
+      avg_response_time_ms: 800
+      context_window: 1000000
+      max_concurrent_requests: 120
+
+  # -----------------------------------------------------------------------------
+  # Gemini 2.5 Flash-Lite - 最高の費用対効果
+  # -----------------------------------------------------------------------------
+  gemini_2_5_flash_lite:
+    name: "Gemini 2.5 Flash-Lite"
+    model_id: "gemini-2.5-flash-lite"
+    type: "LLM / Multimodal LLM"
+    description: "高スループットをサポートする最も費用対効果の高いモデル。大規模なバッチ処理やシンプルなタスクに適用"
+    
+    # 入出力モダリティ
+    input_modalities:
+      - "テキスト"
+      - "画像"
+      - "音声"
+      - "動画"
+    output_modalities:
+      - "テキスト"
+    
+    # 推奨用途
+    recommended_use_cases:
+      - "LightRAGでの大規模な文書インジェッション時のエンティティ・関係のバッチ抽出"
+      - "費用を抑えたRAGシステム構築"
+      - "シンプルな質問応答"
+      - "バックグラウンドでの文書処理"
+      - "大量データの前処理"
+    
+    # LightRAG統合設定
+    lightrag_integration:
+      llm_model_name: "gemini-2.5-flash-lite"
+      context_length_tokens: 64000
+      temperature: 0.8
+      max_output_tokens: 512
+      summary_max_tokens: 8000
+      llm_model_kwargs:
+        temperature: 0.8
+        max_output_tokens: 512
+        top_p: 0.95
+        top_k: 20
+      
+      # 非同期処理設定
+      llm_model_max_async: 16
+      entity_extract_max_gleaning: 1
+    
+    # n8n統合設定
+    n8n_integration:
+      ai_agent_setup:
+        model: "custom_gemini_2_5_flash_lite_api_call"
+        temperature: 0.8
+        max_tokens: 512
+        system_message: |
+          あなたは費用対効果の高いAIエージェントです。
+          簡潔かつ的確に情報を要約し、回答してください。
+          複雑な質問や情報が見つからない場合は、その旨を伝えてください。
+      
+      # 役割定義
+      roles:
+        data_ingestion: "大規模データセットのチャンキング、シンプルなメタデータ生成"
+        query_routing: "基本的な質問への直接応答"
+        batch_processing: "大量データのバッチ処理"
+    
+    # パフォーマンス指標
+    performance_metrics:
+      estimated_cost_per_1k_tokens: 0.0002
+      avg_response_time_ms: 400
+      context_window: 1000000
+      max_concurrent_requests: 200
+
+# -----------------------------------------------------------------------------
+# 共通設定
+# -----------------------------------------------------------------------------
+common_settings:
+  # API基本設定
+  api_base_url: "https://generativelanguage.googleapis.com/v1beta"
+  api_version: "v1beta"
+  
+  # 認証設定
+  authentication:
+    type: "api_key"
+    header_name: "Authorization"
+    header_prefix: "Bearer"
+    env_var: "GEMINI_API_KEY"
+  
+  # レート制限設定
+  rate_limiting:
+    requests_per_minute: 60
+    tokens_per_minute: 1000000
+    concurrent_requests: 10
+    retry_strategy:
+      max_retries: 3
+      backoff_factor: 2
+      retry_delay_ms: 1000
+  
+  # エラーハンドリング
+  error_handling:
+    timeout_seconds: 30
+    connection_timeout_seconds: 10
+    max_response_size_mb: 50
+    fallback_models:
+      - "gpt-4o-mini"
+      - "claude-3-haiku"
+  
+  # トークン管理
+  token_management:
+    enable_tracking: true
+    track_input_tokens: true
+    track_output_tokens: true
+    log_usage: true
+    usage_log_path: "logs/token_usage.json"
+  
+  # キャッシュ設定
+  caching:
+    enable_response_cache: true
+    cache_ttl_seconds: 3600
+    cache_size_mb: 1024
+    cache_key_strategy: "content_hash"
+
+# -----------------------------------------------------------------------------
+# 使用例とテンプレート
+# -----------------------------------------------------------------------------
+usage_examples:
+  lightrag_initialization:
+    example: |
+      from lightrag import LightRAG
+      
+      # Gemini 2.5 Pro with LightRAG
+      rag = LightRAG(
+          working_dir="./lightrag_cache",
+          llm_model_name="gemini-2.5-pro",
+          llm_model_func=gemini_pro_complete,
+          embedding_func=openai_embed,
+          embedding_batch_num=32,
+          llm_model_max_async=4,
+          context_length_tokens=64000
+      )
+  
+  n8n_http_request:
+    example: |
+      {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent",
+        "headers": {
+          "Authorization": "Bearer {{ $secrets.GEMINI_API_KEY }}",
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "contents": [
+            {
+              "parts": [
+                {
+                  "text": "{{ $json.user_query }}"
+                }
+              ]
+            }
+          ],
+          "generationConfig": {
+            "temperature": 0.4,
+            "maxOutputTokens": 2048
+          }
+        }
+      }
+
+# -----------------------------------------------------------------------------
+# 監視とロギング
+# -----------------------------------------------------------------------------
+monitoring:
+  metrics_collection:
+    enable: true
+    metrics:
+      - "request_count"
+      - "response_time"
+      - "token_usage"
+      - "error_rate"
+      - "cache_hit_rate"
+  
+  logging:
+    level: "INFO"
+    format: "json"
+    output: "logs/gemini_models.log"
+    rotate: true
+    max_size: "100MB"
+    backup_count: 5
+  
+  alerting:
+    enable: true
+    thresholds:
+      error_rate: 0.05
+      response_time_p95: 5000
+      token_usage_daily: 1000000

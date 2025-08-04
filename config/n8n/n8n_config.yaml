@@ -1,0 +1,544 @@
+# -----------------------------------------------------------------------------
+# n8n Configuration for GraphRAG Implementation
+# LightRAG Integration with AI Agent Workflows
+# -----------------------------------------------------------------------------
+
+n8n:
+  # -----------------------------------------------------------------------------
+  # Core System Configuration
+  # -----------------------------------------------------------------------------
+  system:
+    version: "1.0.0"
+    environment: "production"  # development, staging, production
+    timezone: "Asia/Tokyo"
+    
+    # Basic Settings
+    editor:
+      default_name: "GraphRAG Workflow"
+      default_description: "LightRAG integrated AI workflow"
+    
+    # Execution Settings
+    executions:
+      mode: "queue"  # regular, queue
+      concurrent_max: 50
+      data_max_age: 168  # hours (7 days)
+      
+    # Logging
+    logging:
+      level: "info"  # error, warn, info, verbose, debug, silly
+      output: ["console", "file"]
+      file_path: "./logs/n8n.log"
+      max_files: 5
+      max_size: "10m"
+
+  # -----------------------------------------------------------------------------
+  # AI Agent Configuration
+  # -----------------------------------------------------------------------------
+  ai_agent:
+    # Default AI Agent Settings
+    default_settings:
+      model: "gemini-2.5-flash"
+      temperature: 0.7
+      max_tokens: 2048
+      system_message: |
+        あなたはGraphRAGシステムに統合されたAIエージェントです。
+        LightRAGの知識グラフと高度な検索機能を活用して、
+        ユーザーの質問に正確で包括的な回答を提供してください。
+        
+        利用可能なツール:
+        - LightRAG検索 (知識グラフベースの検索)
+        - ベクトルストア検索 (セマンティック検索)
+        - Web検索 (外部情報取得)
+        - ドキュメント分析 (コンテンツ解析)
+    
+    # Tool Configuration
+    tools:
+      # LightRAG Integration Tool
+      lightrag_search:
+        name: "LightRAG Knowledge Graph Search"
+        description: "LightRAGの知識グラフを使用した高度な検索"
+        type: "http_request"
+        method: "POST"
+        url: "{{ $vars.LIGHTRAG_API_URL }}/query"
+        headers:
+          Content-Type: "application/json"
+          Authorization: "Bearer {{ $secrets.LIGHTRAG_API_KEY }}"
+        body:
+          query: "{{ $json.user_query }}"
+          mode: "mix"
+          top_k: 10
+          enable_rerank: true
+        response_format: "json"
+        
+      # Vector Store Search Tool
+      vector_search:
+        name: "Semantic Vector Search"
+        description: "ベクトルストアでのセマンティック検索"
+        type: "supabase"
+        operation: "rpc"
+        function: "hybrid_search"
+        parameters:
+          query_text: "{{ $json.user_query }}"
+          match_count: 20
+          filter_metadata: "{{ $json.metadata_filter }}"
+        
+      # Web Search Tool
+      web_search:
+        name: "Web Information Search"
+        description: "外部Webからの情報検索"
+        type: "http_request"
+        method: "GET"
+        url: "https://api.serper.dev/search"
+        headers:
+          X-API-KEY: "{{ $secrets.SERPER_API_KEY }}"
+        parameters:
+          q: "{{ $json.search_query }}"
+          num: 10
+    
+    # Routing Logic
+    routing:
+      # Query Classification
+      classification_prompt: |
+        以下の質問を分析し、最適な検索戦略を決定してください:
+        
+        質問: {{ $json.user_query }}
+        
+        以下の選択肢から最適なものを選んでください:
+        1. knowledge_graph - 知識グラフでの関係性検索が必要
+        2. semantic_search - セマンティック検索が適している
+        3. web_search - 最新情報や外部情報が必要
+        4. hybrid - 複数の検索手法の組み合わせが必要
+        
+        回答は選択肢の番号のみを返してください。
+      
+      # Routing Rules
+      rules:
+        knowledge_graph:
+          triggers:
+            - "関係性"
+            - "つながり"
+            - "エンティティ"
+            - "グラフ"
+          tools: ["lightrag_search"]
+        
+        semantic_search:
+          triggers:
+            - "類似"
+            - "関連"
+            - "要約"
+            - "説明"
+          tools: ["vector_search"]
+        
+        web_search:
+          triggers:
+            - "最新"
+            - "現在"
+            - "ニュース"
+            - "リアルタイム"
+          tools: ["web_search"]
+        
+        hybrid:
+          triggers:
+            - "包括的"
+            - "詳細"
+            - "分析"
+            - "比較"
+          tools: ["lightrag_search", "vector_search"]
+
+  # -----------------------------------------------------------------------------
+  # Workflow Templates Configuration
+  # -----------------------------------------------------------------------------
+  workflow_templates:
+    # Document Ingestion Workflow
+    document_ingestion:
+      name: "GraphRAG Document Ingestion Pipeline"
+      description: "ドキュメントをLightRAGとn8nに自動取り込み"
+      
+      # Trigger Configuration
+      triggers:
+        google_drive:
+          enabled: true
+          folder_id: "{{ $vars.GOOGLE_DRIVE_FOLDER_ID }}"
+          file_types: ["pdf", "docx", "txt", "md"]
+          polling_interval: 300  # seconds
+        
+        webhook:
+          enabled: true
+          path: "/webhook/document-upload"
+          method: "POST"
+        
+        manual:
+          enabled: true
+      
+      # Processing Steps
+      processing_steps:
+        1_file_validation:
+          type: "switch"
+          conditions:
+            - file_size_mb: "<= 50"
+            - file_type: "in ['pdf', 'docx', 'txt', 'md', 'html']"
+        
+        2_content_extraction:
+          type: "conditional"
+          branches:
+            pdf: "extract_pdf_content"
+            docx: "extract_docx_content"
+            html: "extract_html_content"
+            default: "read_text_content"
+        
+        3_hash_generation:
+          type: "function"
+          function: "generate_content_hash"
+          algorithm: "sha256"
+        
+        4_duplicate_check:
+          type: "database_query"
+          database: "supabase"
+          query: "SELECT id FROM record_manager WHERE content_hash = $1"
+        
+        5_metadata_extraction:
+          type: "ai_processing"
+          model: "gemini-2.5-flash"
+          prompt: |
+            以下のドキュメントから重要なメタデータを抽出してください:
+            
+            コンテンツ: {{ $json.content }}
+            
+            以下の形式でJSONを返してください:
+            {
+              "title": "ドキュメントのタイトル",
+              "summary": "100文字以内の要約",
+              "keywords": ["キーワード1", "キーワード2"],
+              "category": "カテゴリ",
+              "language": "言語コード",
+              "entities": ["エンティティ1", "エンティティ2"]
+            }
+        
+        6_chunking_contextualization:
+          type: "ai_processing"
+          model: "gemini-2.5-flash"
+          chunk_size: 1200
+          overlap: 100
+          contextualization_prompt: |
+            以下のテキストチャンクにコンテキスト情報を追加してください:
+            
+            チャンク: {{ $json.chunk }}
+            ドキュメント情報: {{ $json.metadata }}
+            
+            検索しやすいようにチャンクを改善し、独立して理解可能にしてください。
+        
+        7_lightrag_insertion:
+          type: "http_request"
+          method: "POST"
+          url: "{{ $vars.LIGHTRAG_API_URL }}/insert"
+          headers:
+            Authorization: "Bearer {{ $secrets.LIGHTRAG_API_KEY }}"
+            Content-Type: "application/json"
+          body:
+            content: "{{ $json.processed_content }}"
+            metadata: "{{ $json.metadata }}"
+        
+        8_vector_store_upsert:
+          type: "supabase"
+          operation: "upsert"
+          table: "documents_v2"
+          data:
+            content: "{{ $json.processed_content }}"
+            metadata: "{{ $json.metadata }}"
+            embedding: "{{ $json.embedding }}"
+        
+        9_record_management:
+          type: "supabase"
+          operation: "upsert"
+          table: "record_manager"
+          data:
+            source_id: "{{ $json.file_id }}"
+            content_hash: "{{ $json.content_hash }}"
+            status: "processed"
+            processed_at: "{{ $now }}"
+    
+    # Query Processing Workflow
+    query_processing:
+      name: "GraphRAG Query Processing Pipeline"
+      description: "ユーザークエリの高度な処理とレスポンス生成"
+      
+      # Processing Steps
+      processing_steps:
+        1_query_analysis:
+          type: "ai_processing"
+          model: "gemini-2.5-flash"
+          prompt: |
+            以下のクエリを分析してください:
+            
+            クエリ: {{ $json.user_query }}
+            
+            以下を判定してください:
+            1. 質問の複雑度 (1-5)
+            2. 必要な検索タイプ (knowledge_graph, semantic, web, hybrid)
+            3. 推定回答長 (short, medium, long)
+            4. 関連キーワード
+            
+            JSON形式で回答してください。
+        
+        2_metadata_filter_generation:
+          type: "ai_processing"
+          model: "gemini-2.5-flash"
+          prompt: |
+            クエリに基づいてメタデータフィルターを生成してください:
+            
+            クエリ: {{ $json.user_query }}
+            
+            以下の形式で返してください:
+            {
+              "category": ["関連カテゴリ"],
+              "keywords": ["関連キーワード"],
+              "date_range": {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD"}
+            }
+        
+        3_hybrid_search:
+          type: "parallel"
+          branches:
+            lightrag:
+              type: "http_request"
+              method: "POST"
+              url: "{{ $vars.LIGHTRAG_API_URL }}/query"
+              body:
+                query: "{{ $json.user_query }}"
+                mode: "mix"
+                top_k: 10
+            
+            vector_search:
+              type: "supabase"
+              operation: "rpc"
+              function: "hybrid_search"
+              parameters:
+                query_text: "{{ $json.user_query }}"
+                match_count: 20
+                filter_metadata: "{{ $json.metadata_filter }}"
+        
+        4_reranking:
+          type: "http_request"
+          method: "POST"
+          url: "https://api.cohere.ai/v1/rerank"
+          headers:
+            Authorization: "Bearer {{ $secrets.COHERE_API_KEY }}"
+          body:
+            model: "rerank-multilingual-v2.0"
+            query: "{{ $json.user_query }}"
+            documents: "{{ $json.search_results }}"
+            top_n: 10
+        
+        5_response_generation:
+          type: "ai_processing"
+          model: "gemini-2.5-pro"
+          prompt: |
+            以下の情報を基に、ユーザーの質問に回答してください:
+            
+            質問: {{ $json.user_query }}
+            
+            検索結果:
+            {{ $json.reranked_results }}
+            
+            以下のガイドラインに従ってください:
+            1. 正確で事実に基づいた回答
+            2. 情報源を明記
+            3. 不足情報がある場合は明確に示す
+            4. 構造化された読みやすい形式
+            5. 日本語で回答
+
+  # -----------------------------------------------------------------------------
+  # Database Integration
+  # -----------------------------------------------------------------------------
+  database:
+    # Supabase Configuration
+    supabase:
+      enabled: true
+      url: "{{ $vars.SUPABASE_URL }}"
+      anon_key: "{{ $secrets.SUPABASE_ANON_KEY }}"
+      service_role_key: "{{ $secrets.SUPABASE_SERVICE_ROLE_KEY }}"
+      
+      # Tables Configuration
+      tables:
+        documents_v2:
+          columns:
+            - id: "bigint primary key"
+            - content: "text"
+            - metadata: "jsonb"
+            - embedding: "vector(1536)"
+            - created_at: "timestamp"
+        
+        record_manager:
+          columns:
+            - id: "bigint primary key"
+            - source_id: "text unique"
+            - content_hash: "text"
+            - status: "text"
+            - processed_at: "timestamp"
+        
+        conversation_history:
+          columns:
+            - id: "bigint primary key"
+            - session_id: "text"
+            - user_query: "text"
+            - ai_response: "text"
+            - metadata: "jsonb"
+            - created_at: "timestamp"
+      
+      # Functions
+      functions:
+        hybrid_search:
+          parameters:
+            - query_text: "text"
+            - match_count: "int default 10"
+            - filter_metadata: "jsonb default '{}'"
+          returns: "table"
+
+  # -----------------------------------------------------------------------------
+  # External Integrations
+  # -----------------------------------------------------------------------------
+  integrations:
+    # Google Drive
+    google_drive:
+      enabled: true
+      credentials: "{{ $secrets.GOOGLE_DRIVE_CREDENTIALS }}"
+      scopes:
+        - "https://www.googleapis.com/auth/drive.readonly"
+        - "https://www.googleapis.com/auth/drive.file"
+      
+      # Monitoring Folders
+      folders:
+        documents: "{{ $vars.GOOGLE_DRIVE_DOCUMENTS_FOLDER }}"
+        processed: "{{ $vars.GOOGLE_DRIVE_PROCESSED_FOLDER }}"
+        errors: "{{ $vars.GOOGLE_DRIVE_ERRORS_FOLDER }}"
+    
+    # Web Scraping
+    web_scraping:
+      enabled: true
+      user_agent: "GraphRAG-Bot/1.0"
+      request_delay: 1000  # milliseconds
+      max_concurrent: 5
+      timeout: 30000  # milliseconds
+    
+    # Notification Services
+    notifications:
+      discord:
+        enabled: true
+        webhook_url: "{{ $secrets.DISCORD_WEBHOOK_URL }}"
+      
+      slack:
+        enabled: false
+        webhook_url: "{{ $secrets.SLACK_WEBHOOK_URL }}"
+      
+      email:
+        enabled: true
+        smtp_host: "{{ $vars.SMTP_HOST }}"
+        smtp_port: 587
+        username: "{{ $secrets.SMTP_USERNAME }}"
+        password: "{{ $secrets.SMTP_PASSWORD }}"
+
+  # -----------------------------------------------------------------------------
+  # Performance and Monitoring
+  # -----------------------------------------------------------------------------
+  performance:
+    # Execution Settings
+    execution:
+      timeout: 300  # seconds
+      retry_count: 3
+      retry_delay: 5000  # milliseconds
+    
+    # Queue Settings
+    queue:
+      bull:
+        redis_url: "{{ $vars.REDIS_URL }}"
+        max_jobs: 100
+        max_concurrent: 10
+    
+    # Monitoring
+    monitoring:
+      enabled: true
+      metrics_endpoint: "/metrics"
+      health_endpoint: "/health"
+      
+      # Metrics Collection
+      metrics:
+        execution_time: true
+        error_rate: true
+        queue_size: true
+        memory_usage: true
+    
+    # Alerting
+    alerting:
+      enabled: true
+      thresholds:
+        execution_time_ms: 30000
+        error_rate_percent: 5
+        queue_size: 50
+      notification_channels:
+        - "discord"
+        - "email"
+
+  # -----------------------------------------------------------------------------
+  # Security Configuration
+  # -----------------------------------------------------------------------------
+  security:
+    # Authentication
+    authentication:
+      enabled: true
+      jwt_secret: "{{ $secrets.N8N_JWT_SECRET }}"
+      session_timeout: 3600  # seconds
+    
+    # API Security
+    api:
+      rate_limiting:
+        enabled: true
+        requests_per_minute: 100
+        requests_per_hour: 1000
+      
+      cors:
+        enabled: true
+        origins:
+          - "http://localhost:3000"
+          - "https://your-frontend-domain.com"
+    
+    # Data Protection
+    data_protection:
+      encrypt_credentials: true
+      log_level: "info"  # Avoid logging sensitive data
+      audit_log: true
+
+  # -----------------------------------------------------------------------------
+  # Environment Configuration
+  # -----------------------------------------------------------------------------
+  environments:
+    development:
+      system:
+        logging:
+          level: "debug"
+      executions:
+        concurrent_max: 10
+      security:
+        authentication:
+          enabled: false
+    
+    production:
+      system:
+        logging:
+          level: "info"
+      executions:
+        concurrent_max: 50
+      security:
+        authentication:
+          enabled: true
+        api:
+          rate_limiting:
+            enabled: true
+
+# -----------------------------------------------------------------------------
+# Feature Flags
+# -----------------------------------------------------------------------------
+feature_flags:
+  ai_agent_routing: true
+  hybrid_search: true
+  real_time_processing: true
+  advanced_caching: false
+  experimental_workflows: false

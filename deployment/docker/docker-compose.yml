@@ -1,0 +1,387 @@
+# -----------------------------------------------------------------------------
+# GraphRAG Implementation - Docker Compose Configuration
+# LightRAG + n8n + Supporting Services
+# -----------------------------------------------------------------------------
+
+version: '3.8'
+
+services:
+  # ===========================================================================
+  # LightRAG Server
+  # ===========================================================================
+  lightrag-server:
+    container_name: ${LIGHTRAG_CONTAINER_NAME:-lightrag-server}
+    build:
+      context: ../../lightrag/server
+      dockerfile: Dockerfile
+    ports:
+      - "${LIGHTRAG_PORT:-8000}:8000"
+    environment:
+      # LightRAG Configuration
+      - LIGHTRAG_WORKING_DIR=/app/cache
+      - LIGHTRAG_WORKSPACE=${LIGHTRAG_WORKSPACE:-graphrag_production}
+      - LIGHTRAG_API_KEY=${LIGHTRAG_API_KEY}
+      
+      # AI Model APIs
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      
+      # Database Connections
+      - POSTGRES_HOST=postgres-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - NEO4J_URI=bolt://neo4j-graph:7687
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - REDIS_URL=redis://redis-cache:6379
+      
+      # Performance Settings
+      - LIGHTRAG_MAX_ASYNC=${LIGHTRAG_MAX_ASYNC:-8}
+      - LIGHTRAG_MAX_PARALLEL_INSERT=${LIGHTRAG_MAX_PARALLEL_INSERT:-8}
+      
+      # Security
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    
+    volumes:
+      - ${LIGHTRAG_VOLUME_PATH:-./volumes/lightrag}:/app/cache
+      - ./logs:/app/logs
+    
+    depends_on:
+      - postgres-db
+      - redis-cache
+      - neo4j-graph
+    
+    networks:
+      - graphrag-network
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+
+  # ===========================================================================
+  # n8n Workflow Automation
+  # ===========================================================================
+  n8n-server:
+    container_name: ${N8N_CONTAINER_NAME:-n8n-server}
+    image: n8nio/n8n:latest
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      # n8n Configuration
+      - N8N_HOST=${N8N_HOST:-0.0.0.0}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=${NODE_ENV:-production}
+      - WEBHOOK_URL=http://localhost:5678/
+      
+      # Authentication
+      - N8N_BASIC_AUTH_ACTIVE=${N8N_BASIC_AUTH_ACTIVE:-true}
+      - N8N_BASIC_AUTH_USER=${N8N_BASIC_AUTH_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD}
+      
+      # Database
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres-db
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      
+      # Execution Settings
+      - EXECUTIONS_MODE=${EXECUTIONS_MODE:-queue}
+      - EXECUTIONS_DATA_MAX_AGE=${EXECUTIONS_DATA_MAX_AGE:-168}
+      - QUEUE_BULL_REDIS_HOST=redis-cache
+      - QUEUE_BULL_REDIS_PORT=6379
+      - QUEUE_BULL_REDIS_PASSWORD=${REDIS_PASSWORD}
+      
+      # Security
+      - N8N_JWT_SECRET=${N8N_JWT_SECRET}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      
+      # External API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - GOOGLE_DRIVE_CREDENTIALS=${GOOGLE_DRIVE_CREDENTIALS}
+      - SERPER_API_KEY=${SERPER_API_KEY}
+      - COHERE_API_KEY=${COHERE_API_KEY}
+      
+      # LightRAG Integration
+      - LIGHTRAG_API_URL=http://lightrag-server:8000
+      - LIGHTRAG_API_KEY=${LIGHTRAG_API_KEY}
+      
+      # Timezone
+      - TZ=${TZ:-Asia/Tokyo}
+    
+    volumes:
+      - ${N8N_VOLUME_PATH:-./volumes/n8n}:/home/node/.n8n
+      - ./n8n/workflows:/home/node/.n8n/workflows
+      - ./n8n/templates:/home/node/.n8n/templates
+      - ./logs:/home/node/logs
+    
+    depends_on:
+      - postgres-db
+      - redis-cache
+      - lightrag-server
+    
+    networks:
+      - graphrag-network
+    
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # ===========================================================================
+  # PostgreSQL Database
+  # ===========================================================================
+  postgres-db:
+    container_name: ${POSTGRES_CONTAINER_NAME:-postgres-db}
+    image: pgvector/pgvector:pg16
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    
+    volumes:
+      - ${POSTGRES_VOLUME_PATH:-./volumes/postgres}:/var/lib/postgresql/data
+      - ./deployment/docker/init-scripts:/docker-entrypoint-initdb.d
+    
+    networks:
+      - graphrag-network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # ===========================================================================
+  # Redis Cache & Queue
+  # ===========================================================================
+  redis-cache:
+    container_name: ${REDIS_CONTAINER_NAME:-redis-cache}
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    
+    command: >
+      redis-server 
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    
+    volumes:
+      - redis-data:/data
+      - ./deployment/docker/redis.conf:/usr/local/etc/redis/redis.conf
+    
+    networks:
+      - graphrag-network
+    
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+    
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
+
+  # ===========================================================================
+  # Neo4j Graph Database
+  # ===========================================================================
+  neo4j-graph:
+    container_name: ${NEO4J_CONTAINER_NAME:-neo4j-graph}
+    image: neo4j:5-community
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    environment:
+      - NEO4J_AUTH=${NEO4J_USER}/${NEO4J_PASSWORD}
+      - NEO4J_dbms_default__database=${NEO4J_DATABASE:-lightrag}
+      - NEO4J_dbms_memory_heap_initial__size=512m
+      - NEO4J_dbms_memory_heap_max__size=2G
+      - NEO4J_dbms_memory_pagecache_size=1G
+      - NEO4J_dbms_security_procedures_unrestricted=gds.*,apoc.*
+      - NEO4J_dbms_security_procedures_allowlist=gds.*,apoc.*
+      - NEO4JLABS_PLUGINS=["apoc", "graph-data-science"]
+    
+    volumes:
+      - ${NEO4J_VOLUME_PATH:-./volumes/neo4j/data}:/data
+      - ./volumes/neo4j/logs:/logs
+      - ./volumes/neo4j/import:/var/lib/neo4j/import
+      - ./volumes/neo4j/plugins:/plugins
+    
+    networks:
+      - graphrag-network
+    
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "${NEO4J_USER}", "-p", "${NEO4J_PASSWORD}", "RETURN 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    restart: unless-stopped
+    
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # ===========================================================================
+  # Monitoring - Prometheus (Optional)
+  # ===========================================================================
+  prometheus:
+    container_name: prometheus-monitoring
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployment/docker/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    
+    networks:
+      - graphrag-network
+    
+    restart: unless-stopped
+    
+    profiles:
+      - monitoring
+    
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+
+  # ===========================================================================
+  # Monitoring - Grafana (Optional)
+  # ===========================================================================
+  grafana:
+    container_name: grafana-dashboard
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./deployment/docker/grafana/provisioning:/etc/grafana/provisioning
+      - ./deployment/docker/grafana/dashboards:/var/lib/grafana/dashboards
+    
+    depends_on:
+      - prometheus
+    
+    networks:
+      - graphrag-network
+    
+    restart: unless-stopped
+    
+    profiles:
+      - monitoring
+    
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  graphrag-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local

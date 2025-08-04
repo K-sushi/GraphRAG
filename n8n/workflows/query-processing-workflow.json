@@ -1,0 +1,551 @@
+{
+  "name": "GraphRAG Query Processing Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/graphrag/query",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "webhook-trigger-query",
+      "name": "Query Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "graphrag-query-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse and validate incoming query\nconst body = JSON.parse($json.body);\n\n// Validate required fields\nif (!body.query || typeof body.query !== 'string') {\n  throw new Error('Missing or invalid query field');\n}\n\n// Set defaults\nconst queryData = {\n  user_query: body.query.trim(),\n  session_id: body.session_id || 'anonymous',\n  mode: body.mode || 'auto',\n  top_k: body.top_k || 10,\n  enable_rerank: body.enable_rerank !== false,\n  conversation_history: body.conversation_history || [],\n  metadata_filters: body.metadata_filters || {},\n  timestamp: new Date().toISOString()\n};\n\n// Query complexity estimation\nconst words = queryData.user_query.split(' ').length;\nconst hasQuestionWords = /what|how|why|when|where|who|which|explain|describe|analyze/i.test(queryData.user_query);\nconst hasComplexConcepts = /relationship|connection|compare|contrast|analyze|comprehensive|detailed/i.test(queryData.user_query);\n\nlet complexity = 1;\nif (words > 10) complexity += 1;\nif (hasQuestionWords) complexity += 1;\nif (hasComplexConcepts) complexity += 2;\n\nqueryData.estimated_complexity = Math.min(complexity, 5);\n\nreturn [queryData];"
+      },
+      "id": "query-validation-parsing",
+      "name": "Query Validation & Parsing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "model": "gemini-2.5-flash",
+        "prompt": "以下のクエリを分析し、最適な検索戦略を決定してください:\\n\\nクエリ: {{ $json.user_query }}\\n複雑度: {{ $json.estimated_complexity }}\\n\\n以下のJSONフォーマットで回答してください:\\n{\\n  \\\"search_strategy\\\": \\\"knowledge_graph|semantic_search|web_search|hybrid\\\",\\n  \\\"reasoning\\\": \\\"戦略選択の理由\\\",\\n  \\\"expected_response_length\\\": \\\"short|medium|long\\\",\\n  \\\"key_concepts\\\": [\\\"概念1\\\", \\\"概念2\\\"],\\n  \\\"requires_real_time\\\": false,\\n  \\\"confidence\\\": 0.85\\n}",
+        "temperature": 0.3,
+        "maxTokens": 500
+      },
+      "id": "query-analysis-gemini",
+      "name": "Query Analysis (Gemini)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gemini_api_auth",
+          "name": "Gemini API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gemini-2.5-flash",
+        "prompt": "クエリに基づいてメタデータフィルターを生成してください:\\n\\nクエリ: {{ $json.user_query }}\\nキーコンセプト: {{ $json.key_concepts }}\\n\\n以下のJSONフォーマットで返してください:\\n{\\n  \\\"category\\\": [\\\"関連カテゴリ\\\"],\\n  \\\"keywords\\\": [\\\"関連キーワード\\\"],\\n  \\\"date_range\\\": {\\\"start\\\": \\\"YYYY-MM-DD\\\", \\\"end\\\": \\\"YYYY-MM-DD\\\"},\\n  \\\"language\\\": \\\"ja|en|auto\\\",\\n  \\\"entity_types\\\": [\\\"人物\\\", \\\"組織\\\", \\\"場所\\\"]\\n}",
+        "temperature": 0.3,
+        "maxTokens": 300
+      },
+      "id": "metadata-filter-generation",
+      "name": "Metadata Filter Generation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gemini_api_auth",
+          "name": "Gemini API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "strategy_routing",
+              "leftValue": "={{ $json.search_strategy }}",
+              "rightValue": "hybrid",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "search-strategy-router",
+      "name": "Search Strategy Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.LIGHTRAG_API_URL }}/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $secrets.LIGHTRAG_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "query": "={{ $json.user_query }}",
+          "mode": "mix",
+          "top_k": "={{ $json.top_k }}",
+          "enable_rerank": "={{ $json.enable_rerank }}",
+          "conversation_history": "={{ $json.conversation_history }}"
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "lightrag-knowledge-graph-search",
+      "name": "LightRAG Knowledge Graph Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "lightrag_api_auth",
+          "name": "LightRAG API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "rpc",
+        "function": "hybrid_search",
+        "parameters": {
+          "query_text": "={{ $json.user_query }}",
+          "match_count": "={{ $json.top_k * 2 }}",
+          "filter_metadata": "={{ $json.metadata_filter || {} }}"
+        }
+      },
+      "id": "supabase-vector-search",
+      "name": "Supabase Vector Search",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_api",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.serper.dev/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.user_query }}"
+            },
+            {
+              "name": "num",
+              "value": "10"
+            },
+            {
+              "name": "hl",
+              "value": "ja"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "web-search-serper",
+      "name": "Web Search (Serper)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 400],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "serper_api_auth",
+          "name": "Serper API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine results from different search methods\nconst allItems = $input.all();\nconst combinedResults = {\n  lightrag_results: [],\n  vector_results: [],\n  web_results: [],\n  combined_contexts: [],\n  search_metadata: {\n    total_sources: 0,\n    search_strategies_used: [],\n    timestamp: new Date().toISOString()\n  }\n};\n\n// Process each input\nallItems.forEach((item, index) => {\n  if (item.json.entities || item.json.relationships) {\n    // LightRAG results\n    combinedResults.lightrag_results.push(item.json);\n    combinedResults.search_metadata.search_strategies_used.push('knowledge_graph');\n    \n    // Extract contexts from LightRAG\n    if (item.json.contexts) {\n      item.json.contexts.forEach(context => {\n        combinedResults.combined_contexts.push({\n          content: context.content || context,\n          source: 'lightrag',\n          relevance_score: context.score || 0.8,\n          type: 'knowledge_graph'\n        });\n      });\n    }\n  } else if (item.json.match_count !== undefined || Array.isArray(item.json)) {\n    // Supabase vector search results\n    const results = Array.isArray(item.json) ? item.json : item.json.results || [];\n    combinedResults.vector_results = results;\n    combinedResults.search_metadata.search_strategies_used.push('vector_search');\n    \n    // Extract contexts from vector search\n    results.forEach(result => {\n      combinedResults.combined_contexts.push({\n        content: result.content,\n        source: 'vector_store',\n        relevance_score: result.similarity || 0.7,\n        type: 'semantic_search',\n        metadata: result.metadata\n      });\n    });\n  } else if (item.json.organic || item.json.searchInformation) {\n    // Web search results\n    combinedResults.web_results.push(item.json);\n    combinedResults.search_metadata.search_strategies_used.push('web_search');\n    \n    // Extract contexts from web search\n    if (item.json.organic) {\n      item.json.organic.slice(0, 5).forEach(result => {\n        combinedResults.combined_contexts.push({\n          content: `${result.title}: ${result.snippet}`,\n          source: 'web_search',\n          relevance_score: 0.6,\n          type: 'web_result',\n          url: result.link\n        });\n      });\n    }\n  }\n});\n\ncombinedResults.search_metadata.total_sources = combinedResults.combined_contexts.length;\n\n// Sort contexts by relevance score\ncombinedResults.combined_contexts.sort((a, b) => b.relevance_score - a.relevance_score);\n\n// Limit to top results\ncombinedResults.combined_contexts = combinedResults.combined_contexts.slice(0, 15);\n\n// Preserve original query data\nconst originalQuery = allItems[0].json;\ncombinedResults.user_query = originalQuery.user_query;\ncombinedResults.session_id = originalQuery.session_id;\ncombinedResults.estimated_complexity = originalQuery.estimated_complexity;\n\nreturn [combinedResults];"
+      },
+      "id": "combine-search-results",
+      "name": "Combine Search Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.cohere.ai/v1/rerank",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": {
+          "model": "rerank-multilingual-v2.0",
+          "query": "={{ $json.user_query }}",
+          "documents": "={{ $json.combined_contexts.map(ctx => ctx.content) }}",
+          "top_n": "={{ Math.min($json.combined_contexts.length, 10) }}",
+          "return_documents": true
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "id": "cohere-reranking",
+      "name": "Cohere Reranking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "cohere_api_auth",
+          "name": "Cohere API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process reranked results and prepare for LLM\nconst item = $input.first();\nconst rerankedResults = item.json.results || [];\nconst originalData = $('Combine Search Results').first().json;\n\n// Map reranked results back to original contexts\nconst rerankedContexts = rerankedResults.map(result => {\n  const originalContext = originalData.combined_contexts[result.index];\n  return {\n    ...originalContext,\n    rerank_score: result.relevance_score,\n    final_score: (originalContext.relevance_score + result.relevance_score) / 2\n  };\n});\n\n// Prepare context for LLM\nconst contextText = rerankedContexts.map((ctx, index) => \n  `[${index + 1}] (${ctx.type}, score: ${ctx.final_score.toFixed(3)})\\n${ctx.content}\\n`\n).join('\\n');\n\n// Build final prompt\nconst finalPrompt = `以下の情報を基に、ユーザーの質問に回答してください。\\n\\n質問: ${originalData.user_query}\\n\\n検索結果:\\n${contextText}\\n\\n以下のガイドラインに従ってください:\\n1. 正確で事実に基づいた回答を提供\\n2. 情報源を適切に参照\\n3. 不足している情報がある場合は明確に示す\\n4. 構造化された読みやすい形式で回答\\n5. 日本語で回答\\n\\n回答:`;\n\nconst responseData = {\n  ...originalData,\n  reranked_contexts: rerankedContexts,\n  context_for_llm: contextText,\n  final_prompt: finalPrompt,\n  processing_metadata: {\n    total_contexts: rerankedContexts.length,\n    avg_relevance_score: rerankedContexts.reduce((sum, ctx) => sum + ctx.final_score, 0) / rerankedContexts.length,\n    processing_time: new Date().toISOString()\n  }\n};\n\nreturn [responseData];"
+      },
+      "id": "prepare-llm-context",
+      "name": "Prepare LLM Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "model": "gemini-2.5-pro",
+        "prompt": "={{ $json.final_prompt }}",
+        "temperature": 0.4,
+        "maxTokens": 2048,
+        "options": {}
+      },
+      "id": "gemini-response-generation",
+      "name": "Gemini Response Generation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gemini_api_auth",
+          "name": "Gemini API Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "table": "conversation_history",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "session_id",
+              "fieldValue": "={{ $json.session_id }}"
+            },
+            {
+              "fieldId": "user_query",
+              "fieldValue": "={{ $json.user_query }}"
+            },
+            {
+              "fieldId": "ai_response",
+              "fieldValue": "={{ $json.generated_response }}"
+            },
+            {
+              "fieldId": "metadata",
+              "fieldValue": "={{ JSON.stringify({\n  search_strategies: $json.search_metadata.search_strategies_used,\n  total_sources: $json.processing_metadata.total_contexts,\n  avg_relevance: $json.processing_metadata.avg_relevance_score,\n  complexity: $json.estimated_complexity\n}) }}"
+            }
+          ]
+        }
+      },
+      "id": "save-conversation-history",
+      "name": "Save Conversation History",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2440, 300],
+      "credentials": {
+        "supabaseApi": {
+          "id": "supabase_api",
+          "name": "Supabase API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"response\": \"{{ $json.generated_response }}\",\n  \"session_id\": \"{{ $json.session_id }}\",\n  \"metadata\": {\n    \"search_strategies_used\": {{ JSON.stringify($json.search_metadata.search_strategies_used) }},\n    \"total_sources\": {{ $json.processing_metadata.total_sources }},\n    \"avg_relevance_score\": {{ $json.processing_metadata.avg_relevance_score }},\n    \"complexity\": {{ $json.estimated_complexity }},\n    \"processing_time_ms\": {{ Date.now() - new Date($json.timestamp).getTime() }}\n  },\n  \"sources\": {{ JSON.stringify($json.reranked_contexts.slice(0, 5).map(ctx => ({\n    content: ctx.content.substring(0, 200) + '...',\n    type: ctx.type,\n    score: ctx.final_score,\n    url: ctx.url\n  }))) }}\n}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2660, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"error\": \"Query processing failed\",\n  \"message\": \"{{ $json.error?.message || 'Unknown error occurred' }}\",\n  \"session_id\": \"{{ $json.session_id || 'unknown' }}\",\n  \"timestamp\": \"{{ $now }}\"\n}",
+        "responseCode": 500
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2220, 500]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Query Webhook": {
+      "main": [
+        [
+          {
+            "node": "Query Validation & Parsing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Validation & Parsing": {
+      "main": [
+        [
+          {
+            "node": "Query Analysis (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Analysis (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "Metadata Filter Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Metadata Filter Generation": {
+      "main": [
+        [
+          {
+            "node": "Search Strategy Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Strategy Router": {
+      "main": [
+        [
+          {
+            "node": "LightRAG Knowledge Graph Search",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Supabase Vector Search",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Web Search (Serper)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LightRAG Knowledge Graph Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Supabase Vector Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Web Search (Serper)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LightRAG Knowledge Graph Search": {
+      "main": [
+        [
+          {
+            "node": "Combine Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Search": {
+      "main": [
+        [
+          {
+            "node": "Combine Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Search (Serper)": {
+      "main": [
+        [
+          {
+            "node": "Combine Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Search Results": {
+      "main": [
+        [
+          {
+            "node": "Cohere Reranking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cohere Reranking": {
+      "main": [
+        [
+          {
+            "node": "Prepare LLM Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LLM Context": {
+      "main": [
+        [
+          {
+            "node": "Gemini Response Generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Response Generation": {
+      "main": [
+        [
+          {
+            "node": "Save Conversation History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Conversation History": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "error-handler-workflow"
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "graphrag-implementation"
+  },
+  "id": "query-processing-workflow",
+  "tags": [
+    {
+      "createdAt": "2024-08-04T12:30:00.000Z",
+      "updatedAt": "2024-08-04T12:30:00.000Z",
+      "id": "lightrag",
+      "name": "LightRAG"
+    },
+    {
+      "createdAt": "2024-08-04T12:30:00.000Z",
+      "updatedAt": "2024-08-04T12:30:00.000Z",
+      "id": "query-processing",
+      "name": "Query Processing"
+    },
+    {
+      "createdAt": "2024-08-04T12:30:00.000Z",
+      "updatedAt": "2024-08-04T12:30:00.000Z",
+      "id": "graphrag",
+      "name": "GraphRAG"
+    }
+  ]
+}

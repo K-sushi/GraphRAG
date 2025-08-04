@@ -1,0 +1,465 @@
+# -----------------------------------------------------------------------------
+# GraphRAG Implementation .gitignore
+# Comprehensive ignore patterns for LightRAG + n8n project
+# -----------------------------------------------------------------------------
+
+# =============================================================================
+# Environment and Secrets
+# =============================================================================
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets/
+credentials/
+
+# =============================================================================
+# Python
+# =============================================================================
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# =============================================================================
+# Node.js
+# =============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Grunt intermediate storage
+.grunt
+
+# Bower dependency directory
+bower_components
+
+# node-waf configuration
+.lock-wscript
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# Snowpack dependency directory
+web_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variable files
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next
+out
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# =============================================================================
+# Docker
+# =============================================================================
+# Docker volumes and data
+volumes/
+data/
+postgres-data/
+neo4j-data/
+redis-data/
+
+# Docker override files
+docker-compose.override.yml
+docker-compose.*.override.yml
+
+# =============================================================================
+# Databases and Storage
+# =============================================================================
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL
+*.sql.backup
+pg_log/
+
+# Neo4j
+neo4j/
+
+# Redis dumps
+dump.rdb
+
+# LightRAG cache
+lightrag_cache/
+*.pkl
+*.cache
+
+# Vector embeddings
+embeddings/
+vectors/
+
+# =============================================================================
+# Logs and Temporary Files
+# =============================================================================
+# Logs
+logs/
+*.log
+log/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# =============================================================================
+# IDE and Editor Files
+# =============================================================================
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# JetBrains IDEs
+.idea/
+*.swp
+*.swo
+*~
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*.un~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Atom
+.atom/
+
+# =============================================================================
+# n8n Specific
+# =============================================================================
+# n8n user data (keep workflows, exclude runtime data)
+.n8n/
+!.n8n/workflows/
+.n8n/logs/
+.n8n/nodes/
+.n8n/database.sqlite
+
+# =============================================================================
+# AI and ML Models
+# =============================================================================
+# Model files (usually large)
+*.bin
+*.safetensors
+*.onnx
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+
+# Hugging Face cache
+.cache/huggingface/
+
+# =============================================================================
+# Monitoring and Analytics
+# =============================================================================
+# Prometheus data
+prometheus-data/
+
+# Grafana data
+grafana-data/
+
+# Metrics and monitoring
+metrics/
+monitoring/
+
+# =============================================================================
+# Backups and Archives
+# =============================================================================
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+*.save
+
+# Archive files
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+
+# =============================================================================
+# Testing and Development
+# =============================================================================
+# Test results
+test-results/
+coverage/
+.coverage
+htmlcov/
+
+# Development artifacts
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# =============================================================================
+# Cloud and Deployment
+# =============================================================================
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Cloud provider configs
+.aws/
+.gcp/
+.azure/
+
+# Deployment scripts with secrets
+deploy-secrets.sh
+deploy-secrets.ps1
+
+# =============================================================================
+# Documentation Build
+# =============================================================================
+# Sphinx documentation
+docs/_build/
+docs/build/
+
+# MkDocs
+site/
+
+# =============================================================================
+# Custom Project Ignores
+# =============================================================================
+# Custom models and configurations with secrets
+config/production/
+config/secrets/
+
+# Large test datasets
+test-data/
+sample-data/
+
+# Performance benchmarks
+benchmarks/results/
+performance-tests/results/
+
+# Development notes (personal)
+NOTES.md
+TODO.personal.md
+SCRATCH.md
