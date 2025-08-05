@@ -1,0 +1,304 @@
+{
+  "trace_id": "trace_1754400505_8939",
+  "query": "Document processing: input\\quantum_computing.txt",
+  "start_time": 1754400505.6110685,
+  "end_time": 1754400509.5188217,
+  "steps": [
+    {
+      "step_name": "document_loading",
+      "start_time": 1754400505.6110685,
+      "end_time": 1754400505.612204,
+      "input_data": {
+        "path": "input\\quantum_computing.txt"
+      },
+      "output_data": {
+        "length": 759,
+        "word_count": 99,
+        "line_count": 1
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "text_chunking",
+      "start_time": 1754400505.612204,
+      "end_time": 1754400505.6128078,
+      "input_data": {
+        "content_length": 759
+      },
+      "output_data": {
+        "chunk_count": 1,
+        "avg_chunk_size": 759.0,
+        "chunk_sizes": [
+          759
+        ]
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "entity_extraction",
+      "start_time": 1754400505.6128078,
+      "end_time": 1754400508.952774,
+      "input_data": {
+        "chunk_count": 1
+      },
+      "output_data": {
+        "total_entities": 7,
+        "unique_entities": 7,
+        "entity_types": {
+          "unknown": 7
+        },
+        "entities_per_chunk": 7.0
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "relationship_analysis",
+      "start_time": 1754400508.952774,
+      "end_time": 1754400508.9537723,
+      "input_data": {
+        "entity_count": 7
+      },
+      "output_data": {
+        "total_relationships": 21,
+        "relationship_types": {
+          "co_occurs": 21
+        },
+        "avg_relationships_per_entity": 3.0
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "graph_construction",
+      "start_time": 1754400508.9537723,
+      "end_time": 1754400509.5188217,
+      "input_data": {
+        "entities": 7,
+        "relationships": 21
+      },
+      "output_data": {
+        "node_count": 7,
+        "edge_count": 21,
+        "density": 1.0,
+        "connected_components": 1,
+        "largest_component_size": 7,
+        "average_degree": 6.0,
+        "clustering_coefficient": 1.0,
+        "communities_detected": 1,
+        "modularity": 0.0
+      },
+      "metadata": {},
+      "error": null
+    }
+  ],
+  "final_result": {
+    "document_stats": {
+      "length": 759,
+      "word_count": 99,
+      "line_count": 1
+    },
+    "chunk_stats": {
+      "chunk_count": 1,
+      "avg_chunk_size": 759.0,
+      "chunk_sizes": [
+        759
+      ]
+    },
+    "entity_stats": {
+      "total_entities": 7,
+      "unique_entities": 7,
+      "entity_types": {
+        "unknown": 7
+      },
+      "entities_per_chunk": 7.0
+    },
+    "relationship_stats": {
+      "total_relationships": 21,
+      "relationship_types": {
+        "co_occurs": 21
+      },
+      "avg_relationships_per_entity": 3.0
+    },
+    "graph_stats": {
+      "node_count": 7,
+      "edge_count": 21,
+      "density": 1.0,
+      "connected_components": 1,
+      "largest_component_size": 7,
+      "average_degree": 6.0,
+      "clustering_coefficient": 1.0,
+      "communities_detected": 1,
+      "modularity": 0.0
+    },
+    "entities": [
+      {
+        "name": "Quantum",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Companies",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Google",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Microsoft",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Sycamore",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "However",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Rigetti",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "Quantum",
+        "target": "Companies",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Quantum",
+        "target": "Google",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Quantum",
+        "target": "Microsoft",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Quantum",
+        "target": "Sycamore",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Quantum",
+        "target": "However",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Quantum",
+        "target": "Rigetti",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Companies",
+        "target": "Google",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Companies",
+        "target": "Microsoft",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Companies",
+        "target": "Sycamore",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Companies",
+        "target": "However",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      }
+    ]
+  },
+  "performance_metrics": {
+    "total_duration": 3.9077532291412354,
+    "step_count": 5,
+    "step_durations": {
+      "document_loading": 0.0011355876922607422,
+      "text_chunking": 0.0006036758422851562,
+      "entity_extraction": 3.339966297149658,
+      "relationship_analysis": 0.0009982585906982422,
+      "graph_construction": 0.565049409866333
+    },
+    "average_step_duration": 0.7815506458282471,
+    "longest_step": [
+      "entity_extraction",
+      3.339966297149658
+    ],
+    "failed_steps": 0
+  }
+}

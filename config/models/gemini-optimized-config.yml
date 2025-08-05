@@ -1,0 +1,563 @@
+# Gemini 2.5統合最適化設定 - 2025年革新的RAG実装
+# 基づく調査: rag-innovations-2024-2025-comprehensive-analysis.yml
+# 作成日: 2025年8月4日
+
+metadata:
+  config_version: "1.0.0"
+  created_date: "2025-08-04"
+  purpose: "LightRAG + Gemini 2.5統合の最適化設定"
+  based_on_research: "../research/rag-innovations-2024-2025-comprehensive-analysis.yml"
+  optimization_target: "Revolutionary yet practical RAG implementation"
+
+# =============================================================================
+# Gemini 2.5モデル構成設定
+# =============================================================================
+gemini_models:
+  
+  # プライマリモデル: Gemini 2.5 Flash (高速・コスト効率)
+  primary:
+    model_name: "gemini-2.5-flash"
+    provider: "google-vertex-ai"
+    
+    # 使用ケース最適化
+    use_cases:
+      - "high-volume low-latency operations"
+      - "classification and summarization"
+      - "translation and routing"
+      - "productivity enhancement"
+      - "quick conversations"
+      - "recurring requests"
+    
+    # パフォーマンス設定
+    performance_config:
+      max_tokens: 8192
+      temperature: 0.1        # 一貫性重視
+      top_p: 0.9
+      top_k: 40
+      response_timeout: 30    # 30秒タイムアウト
+      retry_attempts: 3
+    
+    # RAG特化設定
+    rag_optimization:
+      semantic_chunking: true
+      context_window: "1M tokens"
+      thinking_capabilities: true
+      tool_integration:
+        - "google_search"
+        - "code_execution"
+      cost_efficiency: "orders of magnitude cheaper than previous models"
+    
+    # API設定
+    api_config:
+      endpoint: "https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/publishers/google/models/gemini-2.5-flash"
+      authentication: "vertex_ai_credentials"
+      rate_limits:
+        requests_per_minute: 1000
+        tokens_per_minute: 100000
+  
+  # セカンダリモデル: Gemini 2.5 Pro (複雑推論・長文書)
+  secondary:
+    model_name: "gemini-2.5-pro"
+    provider: "google-vertex-ai"
+    
+    # 使用ケース最適化
+    use_cases:
+      - "detailed prompts and long documents"
+      - "complex problem solving"
+      - "coding and technical analysis"
+      - "enterprise AI challenges"
+      - "massive dataset analysis"
+      - "scientific discovery"
+    
+    # パフォーマンス設定
+    performance_config:
+      max_tokens: 32768       # 長文書対応
+      temperature: 0.2        # 精度重視
+      top_p: 0.95
+      top_k: 50
+      response_timeout: 120   # 2分タイムアウト（複雑処理用）
+      retry_attempts: 2
+    
+    # 高度な推論設定
+    advanced_reasoning:
+      complex_reasoning: true
+      advanced_code_generation: true
+      deep_multimodal_understanding: true
+      methodical_problem_solving: true
+    
+    # API設定
+    api_config:
+      endpoint: "https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/publishers/google/models/gemini-2.5-pro"
+      authentication: "vertex_ai_credentials"
+      rate_limits:
+        requests_per_minute: 300
+        tokens_per_minute: 500000
+  
+  # フォールバック: Gemini 2.5 Flash-Lite (コスト最適化)
+  fallback:
+    model_name: "gemini-2.5-flash-lite"
+    provider: "google-vertex-ai"
+    
+    # 使用ケース最適化
+    use_cases:
+      - "cost-sensitive high-scale operations"
+      - "basic classification and translation"
+      - "intelligent routing"
+      - "high-volume processing"
+      - "cost optimization scenarios"
+    
+    # パフォーマンス設定
+    performance_config:
+      max_tokens: 4096
+      temperature: 0.0        # 一貫性最優先
+      top_p: 0.8
+      top_k: 30
+      response_timeout: 15    # 高速処理
+      retry_attempts: 5       # 低コストなので再試行多め
+    
+    # 高度機能
+    advanced_features:
+      thinking_budget:
+        enabled: true
+        default_state: "off"   # デフォルトは速度・コスト最適化
+        enable_parameter: "thinking_budget"
+        inspect_parameter: "include_thoughts=True"
+      
+      performance_metrics:
+        speed_improvement: "1.5x faster than 2.0 Flash"
+        cost_efficiency: "most cost-effective Gemini 2.5 model"
+        context_window: "1M tokens"
+        native_tools:
+          - "Google Search"
+          - "Code Execution"
+    
+    # API設定
+    api_config:
+      endpoint: "https://us-central1-aiplatform.googleapis.com/v1/projects/{PROJECT_ID}/locations/us-central1/publishers/google/models/gemini-2.5-flash-lite"
+      authentication: "vertex_ai_credentials"
+      rate_limits:
+        requests_per_minute: 2000
+        tokens_per_minute: 200000
+
+# =============================================================================
+# モデル選択ロジック (動的選択戦略)
+# =============================================================================
+model_selection_logic:
+  
+  # 自動選択ルール
+  automatic_selection:
+    
+    # 高速処理優先
+    speed_priority:
+      conditions:
+        - "query_length < 1000 characters"
+        - "response_time_requirement < 5 seconds"
+        - "classification or summarization task"
+      selected_model: "gemini-2.5-flash"
+      reasoning: "high-volume, low-latency optimization"
+    
+    # 複雑推論要求
+    complex_reasoning:
+      conditions:
+        - "query_length > 5000 characters"
+        - "requires detailed analysis"
+        - "coding or technical tasks"
+        - "enterprise-level complexity"
+      selected_model: "gemini-2.5-pro"
+      reasoning: "deep reasoning and complex problem solving"
+    
+    # コスト最適化
+    cost_optimization:
+      conditions:
+        - "high-volume processing"
+        - "budget constraints active"
+        - "simple classification tasks"
+        - "batch processing mode"
+      selected_model: "gemini-2.5-flash-lite"
+      reasoning: "maximum cost efficiency"
+  
+  # フォールバック戦略
+  fallback_strategy:
+    primary_failure: "gemini-2.5-flash → gemini-2.5-flash-lite"
+    secondary_failure: "gemini-2.5-pro → gemini-2.5-flash"
+    cost_limit_exceeded: "any → gemini-2.5-flash-lite"
+    
+    retry_logic:
+      max_retries: 3
+      backoff_strategy: "exponential"
+      backoff_base: 1.5
+
+# =============================================================================
+# RAG統合最適化設定
+# =============================================================================
+rag_integration_optimization:
+  
+  # LightRAG統合設定
+  lightrag_integration:
+    retrieval_engine: "lightrag"
+    
+    # デュアルレベル検索設定
+    dual_level_retrieval:
+      low_level:
+        description: "detailed information retrieval"
+        chunk_size: 512
+        overlap: 50
+        embedding_model: "text-embedding-004"
+      
+      high_level:
+        description: "conceptual relationship retrieval"
+        graph_traversal_depth: 2
+        entity_relationship_weight: 0.7
+        community_summary_integration: false  # LightRAG simplified
+    
+    # ナレッジグラフ構築
+    knowledge_graph_construction:
+      entity_extraction:
+        model: "gemini-2.5-flash"  # コスト効率重視
+        extraction_prompt: "semantic_chunking_optimized"
+        confidence_threshold: 0.8
+      
+      relationship_identification:
+        model: "gemini-2.5-flash"
+        relationship_types:
+          - "hierarchical"
+          - "causal"
+          - "temporal"
+          - "semantic_similarity"
+        confidence_threshold: 0.7
+    
+    # パフォーマンス最適化
+    performance_optimization:
+      incremental_updates: true
+      update_time_reduction: "50%"
+      graph_union_approach: true
+      cost_effectiveness: "superior_to_graphrag"
+  
+  # 革新的技術統合
+  innovative_techniques:
+    
+    # Late Chunking (Jina方式)
+    late_chunking:
+      enabled: true
+      process:
+        1: "encode entire document with embedding model"
+        2: "determine chunk boundaries before final mean pooling"
+        3: "preserve semantic coherence"
+      benefits:
+        - "improved semantic consistency"
+        - "better context preservation"
+        - "enhanced chunk quality"
+    
+    # Semantic Chunking (LLMベース)
+    semantic_chunking:
+      enabled: true
+      model: "gemini-2.5-flash"  # 低レイテンシ・予算重視
+      approach: "LLM-based semantic coherent section identification"
+      advantage: "superior to arbitrary chunking"
+      cost_optimization: "leverage Gemini Flash cost reduction"
+    
+    # Hybrid Retrieval
+    hybrid_retrieval:
+      enabled: true
+      components:
+        vector_search:
+          weight: 0.6
+          model: "text-embedding-004"
+          similarity_metric: "cosine"
+        
+        knowledge_graph_search:
+          weight: 0.4
+          graph_traversal: true
+          relationship_scoring: true
+        
+        fusion_strategy: "weighted_linear_combination"
+        reranking_model: "gemini-2.5-flash"
+  
+  # 将来拡張機能 (Phase 2/3)
+  future_enhancements:
+    
+    # Corrective RAG (Phase 2)
+    corrective_rag:
+      enabled: false  # Phase 2で有効化
+      web_search_integration: "google_search_api"
+      decompose_recompose_algorithm: true
+      noise_reduction: true
+      real_time_updates: true
+    
+    # Real-time RAG (Phase 2)
+    real_time_rag:
+      enabled: false  # Phase 2で有効化
+      data_feeds:
+        - "external_knowledge_bases"
+        - "website_connections"
+        - "structured_data_sources"
+      update_frequency: "real_time"
+    
+    # Multimodal RAG (Phase 3)
+    multimodal_rag:
+      enabled: false  # Phase 3で有効化
+      supported_formats:
+        - "text"
+        - "images"
+        - "videos"
+        - "audio"
+      multimodal_embedding: "gemini_multimodal"
+
+# =============================================================================
+# Claude-Flow統合設定
+# =============================================================================
+claude_flow_integration:
+  
+  # MCP Tools設定
+  mcp_tools_config:
+    version: "v2.0.0-alpha.84"
+    total_tools: 87
+    
+    # 協調システム設定
+    coordination_system:
+      swarm_orchestration: true
+      hive_mind_intelligence: true
+      neural_learning: true
+      sqlite_memory_persistence: true
+      github_integration: true
+    
+    # パフォーマンス向上設定
+    performance_enhancements:
+      swe_bench_solve_rate: "84.8%"
+      token_reduction: "32.3%"
+      speed_improvement: "2.8-4.4x"
+      neural_models: "27+"
+      github_automation: true
+    
+    # 自動化設定
+    automation_features:
+      pre_operation_hooks:
+        - "auto_assign_agents"
+        - "validate_commands"
+        - "prepare_resources"
+        - "optimize_topology"
+        - "cache_searches"
+      
+      post_operation_hooks:
+        - "auto_format_code"
+        - "train_neural_patterns"
+        - "update_memory"
+        - "analyze_performance"
+        - "track_token_usage"
+  
+  # メモリ・学習システム
+  memory_learning_system:
+    sqlite_backend: true
+    persistent_storage: ".swarm/memory.db"
+    specialized_tables: 12
+    
+    cross_session_features:
+      - "project_context_retention"
+      - "decision_rationale_tracking"
+      - "consistency_maintenance"
+      - "pattern_learning"
+      - "github_workflow_preferences"
+    
+    neural_enhancement:
+      pattern_recognition: true
+      continuous_learning: true
+      adaptive_coordination: true
+      performance_optimization: true
+
+# =============================================================================
+# 品質・パフォーマンス設定
+# =============================================================================
+quality_performance_config:
+  
+  # パフォーマンス目標
+  performance_targets:
+    response_time:
+      target: "<100ms average query latency"
+      baseline: "LightRAG ~80ms"
+      improvement: "30% faster than standard RAG"
+    
+    accuracy:
+      target: ">90% retrieval precision"
+      enhancement: "20-30% improvement with LightRAG"
+      comparison: "outperforms naive RAG and GraphRAG"
+    
+    cost_efficiency:
+      target: "50% operational cost reduction"
+      factors:
+        - "LightRAG 50% cost reduction vs GraphRAG"
+        - "Gemini Flash orders of magnitude cheaper"
+    
+    throughput:
+      target: "1000+ queries/hour single instance"
+      scaling: "Claude-Flow swarm coordination"
+      optimization: "87 MCP Tools parallel processing"
+  
+  # 品質指標
+  quality_metrics:
+    retrieval_relevance:
+      metric: "NDCG@10"
+      target: ">0.85"
+      enhancement: "hybrid retrieval + semantic chunking"
+    
+    generation_quality:
+      metric: "BLEU/ROUGE scores"
+      target: ">0.75"
+      enhancement: "Gemini 2.5 advanced reasoning"
+    
+    consistency:
+      metric: "response consistency across queries"
+      target: ">95%"
+      approach: "Claude-Flow memory coordination"
+  
+  # 監視・最適化
+  monitoring_optimization:
+    real_time_monitoring:
+      - "query latency tracking"
+      - "cost per query calculation"
+      - "accuracy score monitoring"
+      - "model selection effectiveness"
+    
+    automatic_optimization:
+      - "model selection based on performance"
+      - "cost threshold management"
+      - "quality gate enforcement"
+      - "resource utilization optimization"
+
+# =============================================================================
+# セキュリティ・信頼性設定
+# =============================================================================
+security_reliability:
+  
+  # セキュリティ強化
+  security_enhancements:
+    gemini_security:
+      description: "significantly increased protection against indirect prompt injection"
+      rating: "most secure model family to date"
+      enterprise_readiness: true
+    
+    api_security:
+      authentication: "vertex_ai_service_account"
+      encryption: "TLS 1.3"
+      access_control: "IAM-based"
+      audit_logging: true
+    
+    data_protection:
+      - "no data retention by Google"
+      - "enterprise privacy compliance"
+      - "GDPR compliance"
+      - "SOC 2 compliance"
+  
+  # 信頼性・可用性
+  reliability_availability:
+    high_availability:
+      target_uptime: "99.9%"
+      failover_strategy: "multi-model fallback"
+      geographic_redundancy: true
+    
+    error_handling:
+      - "exponential backoff retry"
+      - "circuit breaker pattern"
+      - "graceful degradation"
+      - "comprehensive error logging"
+    
+    disaster_recovery:
+      backup_strategy: "automated daily backups"
+      recovery_time_objective: "< 1 hour"
+      recovery_point_objective: "< 15 minutes"
+
+# =============================================================================
+# 環境別設定
+# =============================================================================
+environment_configs:
+  
+  # 開発環境
+  development:
+    primary_model: "gemini-2.5-flash-lite"  # コスト最適化
+    cost_monitoring: "strict"
+    debug_mode: true
+    thinking_budget: true
+    include_thoughts: true
+    rate_limits: "relaxed"
+  
+  # ステージング環境
+  staging:
+    primary_model: "gemini-2.5-flash"
+    secondary_model: "gemini-2.5-pro"
+    performance_testing: true
+    load_testing: true
+    monitoring: "comprehensive"
+  
+  # 本番環境
+  production:
+    primary_model: "gemini-2.5-flash"
+    secondary_model: "gemini-2.5-pro"
+    fallback_model: "gemini-2.5-flash-lite"
+    monitoring: "real_time"
+    alerting: "immediate"
+    auto_scaling: true
+    cost_controls: "enforced"
+
+# =============================================================================
+# 実装ガイダンス
+# =============================================================================
+implementation_guidance:
+  
+  # Phase 1実装項目
+  phase_1_implementation:
+    priority: "immediate"
+    components:
+      - "Gemini 2.5 Flash基本統合"
+      - "LightRAG retrieval engine"
+      - "Late Chunking実装"
+      - "Claude-Flow MCP基本設定"
+      - "PostgreSQL + pgvector"
+    
+    configuration_steps:
+      1: "Google Cloud Vertex AI API有効化"
+      2: "認証情報設定"
+      3: "モデルエンドポイント設定"
+      4: "LightRAG統合実装"
+      5: "Claude-Flow MCP Tools設定"
+      6: "基本監視設定"
+  
+  # 設定検証
+  configuration_validation:
+    api_connectivity: "gemini API接続テスト"
+    model_response: "各モデル応答品質確認"
+    performance_benchmark: "レスポンス時間測定"
+    cost_tracking: "コスト計算精度確認"
+    integration_test: "Claude-Flow協調動作確認"
+  
+  # トラブルシューティング
+  troubleshooting:
+    common_issues:
+      - "API認証エラー → 認証情報再設定"
+      - "レスポンス遅延 → モデル選択ロジック調整"
+      - "コスト超過 → Flash-Lite優先設定"
+      - "MCP Tools接続エラー → Claude-Flow再初期化"
+    
+    monitoring_alerts:
+      - "レスポンス時間 > 5秒"
+      - "エラー率 > 5%"
+      - "コスト予算超過"
+      - "API制限到達"
+
+# =============================================================================
+# バージョン管理・更新計画
+# =============================================================================
+version_management:
+  
+  current_version: "1.0.0"
+  update_schedule:
+    phase_2: "Corrective RAG, Real-time feeds統合"
+    phase_3: "Multimodal RAG拡張"
+    
+  compatibility:
+    gemini_api: "v1 API使用、下位互換性確保"
+    claude_flow: "v2.0.0-alpha.84対応"
+    lightrag: "最新版追従"
+  
+  migration_strategy:
+    backward_compatibility: true
+    gradual_rollout: true
+    a_b_testing: true

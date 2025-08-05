@@ -1,0 +1,142 @@
+{
+  "trace_id": "trace_1754400513_2274",
+  "query": "Query processing: How does blockchain technology work?",
+  "start_time": 1754400513.4618518,
+  "end_time": 1754400545.1686459,
+  "steps": [
+    {
+      "step_name": "query_analysis",
+      "start_time": 1754400513.4618518,
+      "end_time": 1754400513.4618518,
+      "input_data": {
+        "query": "How does blockchain technology work?"
+      },
+      "output_data": {
+        "length": 36,
+        "word_count": 5,
+        "question_words": [
+          "how"
+        ],
+        "complexity_score": 0.5
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "query_entity_extraction",
+      "start_time": 1754400513.46336,
+      "end_time": 1754400514.3959494,
+      "input_data": null,
+      "output_data": {
+        "entities_found": 1,
+        "entities": [
+          {
+            "name": "How",
+            "type": "unknown",
+            "description": "Entity found in chunk -1",
+            "importance": 5,
+            "chunk_id": -1,
+            "extraction_method": "simple"
+          }
+        ]
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "document_relevance",
+      "start_time": 1754400514.3959494,
+      "end_time": 1754400514.398465,
+      "input_data": null,
+      "output_data": {
+        "documents_analyzed": 5,
+        "relevant_documents": 2,
+        "relevance_scores": {
+          "ai_overview": 0.2,
+          "blockchain_applications": 0.4,
+          "climate_tech": 0.0,
+          "healthcare_tech": 0.0,
+          "quantum_computing": 0.0
+        }
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "context_building",
+      "start_time": 1754400514.3994634,
+      "end_time": 1754400514.3994634,
+      "input_data": null,
+      "output_data": {
+        "context_length": 664,
+        "context_sources": 2
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "response_generation",
+      "start_time": 1754400514.4004629,
+      "end_time": 1754400545.1681402,
+      "input_data": {
+        "context_length": 664
+      },
+      "output_data": {
+        "response_length": 7,
+        "response_word_count": 1
+      },
+      "metadata": {},
+      "error": null
+    }
+  ],
+  "final_result": {
+    "query_stats": {
+      "length": 36,
+      "word_count": 5,
+      "question_words": [
+        "how"
+      ],
+      "complexity_score": 0.5
+    },
+    "query_entities": [
+      {
+        "name": "How",
+        "type": "unknown",
+        "description": "Entity found in chunk -1",
+        "importance": 5,
+        "chunk_id": -1,
+        "extraction_method": "simple"
+      }
+    ],
+    "document_relevance": {
+      "ai_overview": 0.2,
+      "blockchain_applications": 0.4,
+      "climate_tech": 0.0,
+      "healthcare_tech": 0.0,
+      "quantum_computing": 0.0
+    },
+    "context": "From blockchain_applications.txt: Blockchain technology extends beyond cryptocurrency applications. Supply chain management uses blockchain to track products from origin to consumer, ensuring authenticity and preventing counterfeiting. Digital identity verification leverages blockchain to create tamper-proof identity records. Smart ...\n\nFrom ai_overview.txt: Artificial Intelligence is transforming how we work and live. Machine learning algorithms are becoming more sophisticated, enabling computers to recognize patterns, make predictions, and solve complex problems. Deep learning neural networks have revolutionized areas like computer vision, natural lan...",
+    "response": "Error: ",
+    "response_stats": {
+      "response_length": 7,
+      "response_word_count": 1
+    }
+  },
+  "performance_metrics": {
+    "total_duration": 31.706794023513794,
+    "step_count": 5,
+    "step_durations": {
+      "query_analysis": 0.0,
+      "query_entity_extraction": 0.9325892925262451,
+      "document_relevance": 0.002515554428100586,
+      "context_building": 0.0,
+      "response_generation": 30.767677307128906
+    },
+    "average_step_duration": 6.34055643081665,
+    "longest_step": [
+      "response_generation",
+      30.767677307128906
+    ],
+    "failed_steps": 0
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "trace_id": "trace_1754400545_2937",
+  "query": "Query processing: Explain quantum computing applications",
+  "start_time": 1754400545.1696544,
+  "end_time": 1754400549.2569256,
+  "steps": [
+    {
+      "step_name": "query_analysis",
+      "start_time": 1754400545.1696544,
+      "end_time": 1754400545.1696544,
+      "input_data": {
+        "query": "Explain quantum computing applications"
+      },
+      "output_data": {
+        "length": 38,
+        "word_count": 4,
+        "question_words": [],
+        "complexity_score": 0.4
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "query_entity_extraction",
+      "start_time": 1754400545.1711595,
+      "end_time": 1754400546.3015666,
+      "input_data": null,
+      "output_data": {
+        "entities_found": 1,
+        "entities": [
+          {
+            "name": "Explain",
+            "type": "unknown",
+            "description": "Entity found in chunk -1",
+            "importance": 5,
+            "chunk_id": -1,
+            "extraction_method": "simple"
+          }
+        ]
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "document_relevance",
+      "start_time": 1754400546.3015666,
+      "end_time": 1754400546.3030965,
+      "input_data": null,
+      "output_data": {
+        "documents_analyzed": 5,
+        "relevant_documents": 1,
+        "relevance_scores": {
+          "ai_overview": 0.0,
+          "blockchain_applications": 0.0,
+          "climate_tech": 0.0,
+          "healthcare_tech": 0.0,
+          "quantum_computing": 0.5
+        }
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "context_building",
+      "start_time": 1754400546.3030965,
+      "end_time": 1754400546.3041065,
+      "input_data": null,
+      "output_data": {
+        "context_length": 331,
+        "context_sources": 1
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "response_generation",
+      "start_time": 1754400546.3041065,
+      "end_time": 1754400549.2557638,
+      "input_data": {
+        "context_length": 331
+      },
+      "output_data": {
+        "response_length": 572,
+        "response_word_count": 78
+      },
+      "metadata": {},
+      "error": null
+    }
+  ],
+  "final_result": {
+    "query_stats": {
+      "length": 38,
+      "word_count": 4,
+      "question_words": [],
+      "complexity_score": 0.4
+    },
+    "query_entities": [
+      {
+        "name": "Explain",
+        "type": "unknown",
+        "description": "Entity found in chunk -1",
+        "importance": 5,
+        "chunk_id": -1,
+        "extraction_method": "simple"
+      }
+    ],
+    "document_relevance": {
+      "ai_overview": 0.0,
+      "blockchain_applications": 0.0,
+      "climate_tech": 0.0,
+      "healthcare_tech": 0.0,
+      "quantum_computing": 0.5
+    },
+    "context": "From quantum_computing.txt: Quantum computing represents the next frontier in computational power. Companies like IBM, Google, and Microsoft are investing heavily in quantum research and development. Google achieved quantum supremacy with its Sycamore processor, demonstrating the potential for quantum computers to solve proble...",
+    "response": "The provided text only hints at the potential of quantum computing to solve problems beyond the capabilities of classical computers, referencing Google's achievement of \"quantum supremacy.\"  It doesn't detail specific applications.  Therefore, a comprehensive answer based *solely* on the provided context is limited.\n\nWe can infer that quantum computing has applications that current computers struggle with, since companies are investing heavily and milestones like \"quantum supremacy\" are being reached.  However, the text doesn't specify *what* those applications are.",
+    "response_stats": {
+      "response_length": 572,
+      "response_word_count": 78
+    }
+  },
+  "performance_metrics": {
+    "total_duration": 4.087271213531494,
+    "step_count": 5,
+    "step_durations": {
+      "query_analysis": 0.0,
+      "query_entity_extraction": 1.1304070949554443,
+      "document_relevance": 0.0015299320220947266,
+      "context_building": 0.0010099411010742188,
+      "response_generation": 2.951657295227051
+    },
+    "average_step_duration": 0.8169208526611328,
+    "longest_step": [
+      "response_generation",
+      2.951657295227051
+    ],
+    "failed_steps": 0
+  }
+}

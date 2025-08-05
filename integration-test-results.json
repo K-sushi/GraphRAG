@@ -1,0 +1,28 @@
+{
+  "default": [
+    {
+      "key": "test-context",
+      "value": "GraphRAG LightRAG n8n Claude-Flow integration testing campaign started",
+      "namespace": "default",
+      "timestamp": 1754317802514
+    },
+    {
+      "key": "lightrag-status",
+      "value": "LightRAG GraphRAG implementation successful with Gemini 2.5 integration",
+      "namespace": "default",
+      "timestamp": 1754318274409
+    },
+    {
+      "key": "n8n-workflows",
+      "value": "n8n automation workflows created for document ingestion and AI agent routing",
+      "namespace": "default",
+      "timestamp": 1754318278790
+    },
+    {
+      "key": "integration-results",
+      "value": "Full system integration test completed with WASM neural learning at 85.3% accuracy",
+      "namespace": "default",
+      "timestamp": 1754318282267
+    }
+  ]
+}

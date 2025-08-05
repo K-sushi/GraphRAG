@@ -1,0 +1,244 @@
+{
+  "trace_id": "trace_1754400501_9491",
+  "query": "Document processing: input\\healthcare_tech.txt",
+  "start_time": 1754400501.9517395,
+  "end_time": 1754400505.6080716,
+  "steps": [
+    {
+      "step_name": "document_loading",
+      "start_time": 1754400501.9517395,
+      "end_time": 1754400501.9553902,
+      "input_data": {
+        "path": "input\\healthcare_tech.txt"
+      },
+      "output_data": {
+        "length": 702,
+        "word_count": 89,
+        "line_count": 1
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "text_chunking",
+      "start_time": 1754400501.9553902,
+      "end_time": 1754400501.9565737,
+      "input_data": {
+        "content_length": 702
+      },
+      "output_data": {
+        "chunk_count": 1,
+        "avg_chunk_size": 702.0,
+        "chunk_sizes": [
+          702
+        ]
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "entity_extraction",
+      "start_time": 1754400501.9565737,
+      "end_time": 1754400504.950288,
+      "input_data": {
+        "chunk_count": 1
+      },
+      "output_data": {
+        "total_entities": 4,
+        "unique_entities": 4,
+        "entity_types": {
+          "unknown": 4
+        },
+        "entities_per_chunk": 4.0
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "relationship_analysis",
+      "start_time": 1754400504.950288,
+      "end_time": 1754400504.9512353,
+      "input_data": {
+        "entity_count": 4
+      },
+      "output_data": {
+        "total_relationships": 6,
+        "relationship_types": {
+          "co_occurs": 6
+        },
+        "avg_relationships_per_entity": 1.5
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "graph_construction",
+      "start_time": 1754400504.9512353,
+      "end_time": 1754400505.6080716,
+      "input_data": {
+        "entities": 4,
+        "relationships": 6
+      },
+      "output_data": {
+        "node_count": 4,
+        "edge_count": 6,
+        "density": 1.0,
+        "connected_components": 1,
+        "largest_component_size": 4,
+        "average_degree": 3.0,
+        "clustering_coefficient": 1.0,
+        "communities_detected": 1,
+        "modularity": 0.0
+      },
+      "metadata": {},
+      "error": null
+    }
+  ],
+  "final_result": {
+    "document_stats": {
+      "length": 702,
+      "word_count": 89,
+      "line_count": 1
+    },
+    "chunk_stats": {
+      "chunk_count": 1,
+      "avg_chunk_size": 702.0,
+      "chunk_sizes": [
+        702
+      ]
+    },
+    "entity_stats": {
+      "total_entities": 4,
+      "unique_entities": 4,
+      "entity_types": {
+        "unknown": 4
+      },
+      "entities_per_chunk": 4.0
+    },
+    "relationship_stats": {
+      "total_relationships": 6,
+      "relationship_types": {
+        "co_occurs": 6
+      },
+      "avg_relationships_per_entity": 1.5
+    },
+    "graph_stats": {
+      "node_count": 4,
+      "edge_count": 6,
+      "density": 1.0,
+      "connected_components": 1,
+      "largest_component_size": 4,
+      "average_degree": 3.0,
+      "clustering_coefficient": 1.0,
+      "communities_detected": 1,
+      "modularity": 0.0
+    },
+    "entities": [
+      {
+        "name": "Electronic",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Radiology",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Wearable",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Robotics",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "Electronic",
+        "target": "Radiology",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Electronic",
+        "target": "Wearable",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Electronic",
+        "target": "Robotics",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Radiology",
+        "target": "Wearable",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Radiology",
+        "target": "Robotics",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Wearable",
+        "target": "Robotics",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      }
+    ]
+  },
+  "performance_metrics": {
+    "total_duration": 3.656332015991211,
+    "step_count": 5,
+    "step_durations": {
+      "document_loading": 0.003650665283203125,
+      "text_chunking": 0.0011835098266601562,
+      "entity_extraction": 2.9937143325805664,
+      "relationship_analysis": 0.0009472370147705078,
+      "graph_construction": 0.6568362712860107
+    },
+    "average_step_duration": 0.7312664031982422,
+    "longest_step": [
+      "entity_extraction",
+      2.9937143325805664
+    ],
+    "failed_steps": 0
+  }
+}

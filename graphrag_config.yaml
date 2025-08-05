@@ -1,0 +1,185 @@
+# Microsoft GraphRAG Configuration for Gemini Integration
+# Generated with SuperClaude Wave Orchestration
+
+reporting:
+  type: file # or console, blob
+  base_dir: "output"
+  storage_account_blob_url: null
+
+storage:
+  type: file # or blob
+  base_dir: "input"
+  connection_string: null
+  container_name: null
+
+cache:
+  type: file # or blob
+  base_dir: "cache"
+  connection_string: null
+  container_name: null
+
+input:
+  type: file # or blob
+  file_type: text # or csv
+  base_dir: "input"
+  connection_string: null
+  container_name: null
+  encoding: utf-8
+  file_pattern: ".*\\.txt$"
+
+embed:
+  llm:
+    api_key: ${GEMINI_API_KEY}
+    type: openai_embedding  # Compatible embedding for now
+    model: text-embedding-3-small
+    api_base: null
+    api_version: null
+    deployment_name: null
+    tokens_per_minute: 150_000 # Set based on your limit
+    requests_per_minute: 10_000 # Set based on your limit
+    max_retries: 20
+    max_retry_wait: 10.0
+    sleep_on_rate_limit_recommendation: true # Whether to sleep when azure suggests wait-times
+    concurrent_requests: 25 # The number of parallel inflight requests that may be made
+
+chunks:
+  size: 1200
+  overlap: 100
+  group_by_columns: [id] # by default, we don't allow chunks to cross documents
+
+text_unit_prop: 0.5
+
+community_report_prop: 0.1
+
+graph_ml:
+  enabled: false # if true, will generate graph ml output
+  
+umap:
+  enabled: false # if true, will generate UMAP embeddings for nodes
+
+snapshots:
+  graphml: false
+  raw_entities: false
+  top_level_nodes: false
+
+entity_extraction:
+  llm:
+    api_key: ${GEMINI_API_KEY}
+    type: azure_openai_chat  # We'll override this to use Gemini
+    model: gemini-2.0-flash-exp
+    api_base: null
+    api_version: null
+    deployment_name: null
+    tokens_per_minute: 150_000 # Set based on your limit
+    requests_per_minute: 10_000 # Set based on your limit
+    max_retries: 20
+    max_retry_wait: 10.0
+    sleep_on_rate_limit_recommendation: true # Whether to sleep when azure suggests wait-times
+    concurrent_requests: 25 # The number of parallel inflight requests that may be made
+    temperature: 0 # temperature for sampling
+    top_p: 1 # top-p sampling
+    n: 1 # Number of completions to generate
+
+  prompt: "prompts/entity_extraction.txt"
+  entity_types: [organization,person,geo,event]
+  max_gleanings: 1
+
+entity_resolution:
+  llm:
+    api_key: ${GEMINI_API_KEY}
+    type: azure_openai_chat  # We'll override this to use Gemini
+    model: gemini-2.0-flash-exp
+    api_base: null
+    api_version: null
+    deployment_name: null
+    tokens_per_minute: 150_000 # Set based on your limit
+    requests_per_minute: 10_000 # Set based on your limit
+    max_retries: 20
+    max_retry_wait: 10.0
+    sleep_on_rate_limit_recommendation: true # Whether to sleep when azure suggests wait-times
+    concurrent_requests: 25 # The number of parallel inflight requests that may be made
+    temperature: 0 # temperature for sampling
+    top_p: 1 # top-p sampling
+    n: 1 # Number of completions to generate
+
+  prompt: "prompts/entity_resolution.txt"
+
+community_report:
+  llm:
+    api_key: ${GEMINI_API_KEY}
+    type: azure_openai_chat  # We'll override this to use Gemini
+    model: gemini-1.5-pro-002
+    api_base: null
+    api_version: null
+    deployment_name: null
+    tokens_per_minute: 150_000 # Set based on your limit
+    requests_per_minute: 10_000 # Set based on your limit
+    max_retries: 20
+    max_retry_wait: 10.0
+    sleep_on_rate_limit_recommendation: true # Whether to sleep when azure suggests wait-times
+    concurrent_requests: 25 # The number of parallel inflight requests that may be made
+    temperature: 0 # temperature for sampling
+    top_p: 1 # top-p sampling
+    n: 1 # Number of completions to generate
+
+  prompt: "prompts/community_report.txt"
+  max_length: 2000
+  max_input_length: 8000
+
+claim_extraction:
+  llm:
+    api_key: ${GEMINI_API_KEY}
+    type: azure_openai_chat  # We'll override this to use Gemini
+    model: gemini-2.0-flash-exp
+    api_base: null
+    api_version: null
+    deployment_name: null
+    tokens_per_minute: 150_000 # Set based on your limit
+    requests_per_minute: 10_000 # Set based on your limit
+    max_retries: 20
+    max_retry_wait: 10.0
+    sleep_on_rate_limit_recommendation: true # Whether to sleep when azure suggests wait-times
+    concurrent_requests: 25 # The number of parallel inflight requests that may be made
+    temperature: 0 # temperature for sampling
+    top_p: 1 # top-p sampling
+    n: 1 # Number of completions to generate
+
+  prompt: "prompts/claim_extraction.txt"
+  description: "Any claims or facts that could be relevant to information discovery."
+  max_gleanings: 1
+
+summarize_descriptions:
+  llm:
+    api_key: ${GEMINI_API_KEY}
+    type: azure_openai_chat  # We'll override this to use Gemini
+    model: gemini-2.0-flash-exp
+    api_base: null
+    api_version: null
+    deployment_name: null
+    tokens_per_minute: 150_000 # Set based on your limit
+    requests_per_minute: 10_000 # Set based on your limit
+    max_retries: 20
+    max_retry_wait: 10.0
+    sleep_on_rate_limit_recommendation: true # Whether to sleep when azure suggests wait-times
+    concurrent_requests: 25 # The number of parallel inflight requests that may be made
+    temperature: 0 # temperature for sampling
+    top_p: 1 # top-p sampling
+    n: 1 # Number of completions to generate
+
+  prompt: "prompts/summarize_descriptions.txt"
+  max_length: 500
+
+local_search:
+  text_unit_prop: 0.5
+  community_prop: 0.1
+  conversation_history_max_turns: 5
+  top_k_mapped_entities: 10
+  top_k_relationships: 10
+  max_tokens: 12_000
+
+global_search:
+  max_tokens: 12_000
+  data_max_tokens: 12_000
+  map_max_tokens: 1_000
+  reduce_max_tokens: 2_000
+  concurrency: 32

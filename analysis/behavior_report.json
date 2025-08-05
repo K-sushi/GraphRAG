@@ -1,0 +1,83 @@
+{
+  "summary": {
+    "total_traces": 8,
+    "successful_traces": 8,
+    "failed_traces": 0,
+    "average_duration": 8.033205509185791
+  },
+  "step_analysis": {
+    "relationship_analysis": {
+      "total_instances": 5,
+      "successful_instances": 5,
+      "failure_rate": 0.0,
+      "average_duration": 0.0005919933319091797,
+      "common_errors": []
+    },
+    "document_relevance": {
+      "total_instances": 3,
+      "successful_instances": 3,
+      "failure_rate": 0.0,
+      "average_duration": 0.0018530686696370442,
+      "common_errors": []
+    },
+    "document_loading": {
+      "total_instances": 5,
+      "successful_instances": 5,
+      "failure_rate": 0.0,
+      "average_duration": 0.009041500091552735,
+      "common_errors": []
+    },
+    "context_building": {
+      "total_instances": 3,
+      "successful_instances": 3,
+      "failure_rate": 0.0,
+      "average_duration": 0.00033664703369140625,
+      "common_errors": []
+    },
+    "text_chunking": {
+      "total_instances": 5,
+      "successful_instances": 5,
+      "failure_rate": 0.0,
+      "average_duration": 0.0009596347808837891,
+      "common_errors": []
+    },
+    "entity_extraction": {
+      "total_instances": 5,
+      "successful_instances": 5,
+      "failure_rate": 0.0,
+      "average_duration": 3.3357848167419433,
+      "common_errors": []
+    },
+    "query_analysis": {
+      "total_instances": 3,
+      "successful_instances": 3,
+      "failure_rate": 0.0,
+      "average_duration": 0.0,
+      "common_errors": []
+    },
+    "graph_construction": {
+      "total_instances": 5,
+      "successful_instances": 5,
+      "failure_rate": 0.0,
+      "average_duration": 1.5576322078704834,
+      "common_errors": []
+    },
+    "query_entity_extraction": {
+      "total_instances": 3,
+      "successful_instances": 3,
+      "failure_rate": 0.0,
+      "average_duration": 1.0139034589131672,
+      "common_errors": []
+    },
+    "response_generation": {
+      "total_instances": 3,
+      "successful_instances": 3,
+      "failure_rate": 0.0,
+      "average_duration": 12.225040435791016,
+      "common_errors": []
+    }
+  },
+  "performance_patterns": {},
+  "error_analysis": {},
+  "recommendations": []
+}

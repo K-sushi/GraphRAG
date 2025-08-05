@@ -1,0 +1,304 @@
+{
+  "trace_id": "trace_1754400498_2042",
+  "query": "Document processing: input\\climate_tech.txt",
+  "start_time": 1754400498.313608,
+  "end_time": 1754400501.950231,
+  "steps": [
+    {
+      "step_name": "document_loading",
+      "start_time": 1754400498.3146229,
+      "end_time": 1754400498.323744,
+      "input_data": {
+        "path": "input\\climate_tech.txt"
+      },
+      "output_data": {
+        "length": 754,
+        "word_count": 96,
+        "line_count": 1
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "text_chunking",
+      "start_time": 1754400498.323744,
+      "end_time": 1754400498.323744,
+      "input_data": {
+        "content_length": 754
+      },
+      "output_data": {
+        "chunk_count": 1,
+        "avg_chunk_size": 754.0,
+        "chunk_sizes": [
+          754
+        ]
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "entity_extraction",
+      "start_time": 1754400498.323744,
+      "end_time": 1754400501.4680822,
+      "input_data": {
+        "chunk_count": 1
+      },
+      "output_data": {
+        "total_entities": 7,
+        "unique_entities": 7,
+        "entity_types": {
+          "unknown": 7
+        },
+        "entities_per_chunk": 7.0
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "relationship_analysis",
+      "start_time": 1754400501.4680822,
+      "end_time": 1754400501.4690967,
+      "input_data": {
+        "entity_count": 7
+      },
+      "output_data": {
+        "total_relationships": 21,
+        "relationship_types": {
+          "co_occurs": 21
+        },
+        "avg_relationships_per_entity": 3.0
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "graph_construction",
+      "start_time": 1754400501.4690967,
+      "end_time": 1754400501.950231,
+      "input_data": {
+        "entities": 7,
+        "relationships": 21
+      },
+      "output_data": {
+        "node_count": 7,
+        "edge_count": 21,
+        "density": 1.0,
+        "connected_components": 1,
+        "largest_component_size": 7,
+        "average_degree": 6.0,
+        "clustering_coefficient": 1.0,
+        "communities_detected": 1,
+        "modularity": 0.0
+      },
+      "metadata": {},
+      "error": null
+    }
+  ],
+  "final_result": {
+    "document_stats": {
+      "length": 754,
+      "word_count": 96,
+      "line_count": 1
+    },
+    "chunk_stats": {
+      "chunk_count": 1,
+      "avg_chunk_size": 754.0,
+      "chunk_sizes": [
+        754
+      ]
+    },
+    "entity_stats": {
+      "total_entities": 7,
+      "unique_entities": 7,
+      "entity_types": {
+        "unknown": 7
+      },
+      "entities_per_chunk": 7.0
+    },
+    "relationship_stats": {
+      "total_relationships": 21,
+      "relationship_types": {
+        "co_occurs": 21
+      },
+      "avg_relationships_per_entity": 3.0
+    },
+    "graph_stats": {
+      "node_count": 7,
+      "edge_count": 21,
+      "density": 1.0,
+      "connected_components": 1,
+      "largest_component_size": 7,
+      "average_degree": 6.0,
+      "clustering_coefficient": 1.0,
+      "communities_detected": 1,
+      "modularity": 0.0
+    },
+    "entities": [
+      {
+        "name": "Climate",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Renewable",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Energy",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Smart",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Carbon",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Electric",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Green",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "Climate",
+        "target": "Renewable",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Climate",
+        "target": "Energy",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Climate",
+        "target": "Smart",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Climate",
+        "target": "Carbon",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Climate",
+        "target": "Electric",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Climate",
+        "target": "Green",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Renewable",
+        "target": "Energy",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Renewable",
+        "target": "Smart",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Renewable",
+        "target": "Carbon",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Renewable",
+        "target": "Electric",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      }
+    ]
+  },
+  "performance_metrics": {
+    "total_duration": 3.6366231441497803,
+    "step_count": 5,
+    "step_durations": {
+      "document_loading": 0.009121179580688477,
+      "text_chunking": 0.0,
+      "entity_extraction": 3.1443381309509277,
+      "relationship_analysis": 0.0010144710540771484,
+      "graph_construction": 0.48113441467285156
+    },
+    "average_step_duration": 0.727121639251709,
+    "longest_step": [
+      "entity_extraction",
+      3.1443381309509277
+    ],
+    "failed_steps": 0
+  }
+}

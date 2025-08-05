@@ -1,0 +1,55 @@
+# Testing dependencies for LightRAG server
+# Install with: pip install -r test_requirements.txt
+
+# Core testing framework
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-timeout>=2.1.0
+pytest-mock>=3.11.0
+pytest-xdist>=3.3.0
+
+# HTTP testing
+httpx>=0.25.0
+requests>=2.31.0
+
+# Mocking and fixtures
+factory-boy>=3.3.0
+Faker>=19.0.0
+responses>=0.23.0
+
+# Performance testing
+pytest-benchmark>=4.0.0
+locust>=2.16.0
+
+# Security testing
+bandit>=1.7.5
+safety>=2.3.0
+
+# Load testing utilities
+aiohttp>=3.8.0
+
+# Test data management
+freezegun>=1.2.0
+time-machine>=2.12.0
+
+# Code quality
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.12.0
+mypy>=1.5.0
+
+# Documentation testing
+sphinx>=7.0.0
+sphinx-autodoc-typehints>=1.24.0
+
+# Development utilities
+ipdb>=0.13.0
+ipython>=8.0.0
+pre-commit>=3.3.0
+
+# Additional testing utilities
+pytest-html>=3.2.0
+pytest-json-report>=1.5.0
+pytest-instafail>=0.5.0
+pytest-clarity>=1.0.0

@@ -1,0 +1,296 @@
+{
+  "trace_id": "trace_1754400484_463",
+  "query": "Document processing: input\\ai_overview.txt",
+  "start_time": 1754400484.9662428,
+  "end_time": 1754400494.426752,
+  "steps": [
+    {
+      "step_name": "document_loading",
+      "start_time": 1754400484.9685032,
+      "end_time": 1754400484.9715316,
+      "input_data": {
+        "path": "input\\ai_overview.txt"
+      },
+      "output_data": {
+        "length": 650,
+        "word_count": 86,
+        "line_count": 1
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "text_chunking",
+      "start_time": 1754400484.9750633,
+      "end_time": 1754400484.9780743,
+      "input_data": {
+        "content_length": 650
+      },
+      "output_data": {
+        "chunk_count": 1,
+        "avg_chunk_size": 650.0,
+        "chunk_sizes": [
+          650
+        ]
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "entity_extraction",
+      "start_time": 1754400484.9780743,
+      "end_time": 1754400488.9920576,
+      "input_data": {
+        "chunk_count": 1
+      },
+      "output_data": {
+        "total_entities": 6,
+        "unique_entities": 6,
+        "entity_types": {
+          "unknown": 6
+        },
+        "entities_per_chunk": 6.0
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "relationship_analysis",
+      "start_time": 1754400488.9925666,
+      "end_time": 1754400488.9925666,
+      "input_data": {
+        "entity_count": 6
+      },
+      "output_data": {
+        "total_relationships": 15,
+        "relationship_types": {
+          "co_occurs": 15
+        },
+        "avg_relationships_per_entity": 2.5
+      },
+      "metadata": {},
+      "error": null
+    },
+    {
+      "step_name": "graph_construction",
+      "start_time": 1754400488.9935787,
+      "end_time": 1754400494.4256203,
+      "input_data": {
+        "entities": 6,
+        "relationships": 15
+      },
+      "output_data": {
+        "node_count": 6,
+        "edge_count": 15,
+        "density": 1.0,
+        "connected_components": 1,
+        "largest_component_size": 6,
+        "average_degree": 5.0,
+        "clustering_coefficient": 1.0,
+        "communities_detected": 1,
+        "modularity": 0.0
+      },
+      "metadata": {},
+      "error": null
+    }
+  ],
+  "final_result": {
+    "document_stats": {
+      "length": 650,
+      "word_count": 86,
+      "line_count": 1
+    },
+    "chunk_stats": {
+      "chunk_count": 1,
+      "avg_chunk_size": 650.0,
+      "chunk_sizes": [
+        650
+      ]
+    },
+    "entity_stats": {
+      "total_entities": 6,
+      "unique_entities": 6,
+      "entity_types": {
+        "unknown": 6
+      },
+      "entities_per_chunk": 6.0
+    },
+    "relationship_stats": {
+      "total_relationships": 15,
+      "relationship_types": {
+        "co_occurs": 15
+      },
+      "avg_relationships_per_entity": 2.5
+    },
+    "graph_stats": {
+      "node_count": 6,
+      "edge_count": 15,
+      "density": 1.0,
+      "connected_components": 1,
+      "largest_component_size": 6,
+      "average_degree": 5.0,
+      "clustering_coefficient": 1.0,
+      "communities_detected": 1,
+      "modularity": 0.0
+    },
+    "entities": [
+      {
+        "name": "Artificial Intelligence",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Machine",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Deep",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Companies",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Google",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      },
+      {
+        "name": "Microsoft",
+        "type": "unknown",
+        "description": "Entity found in chunk 0",
+        "importance": 5,
+        "chunk_id": 0,
+        "extraction_method": "simple"
+      }
+    ],
+    "relationships": [
+      {
+        "source": "Artificial Intelligence",
+        "target": "Machine",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Artificial Intelligence",
+        "target": "Deep",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Artificial Intelligence",
+        "target": "Companies",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Artificial Intelligence",
+        "target": "Google",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Artificial Intelligence",
+        "target": "Microsoft",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Machine",
+        "target": "Deep",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Machine",
+        "target": "Companies",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Machine",
+        "target": "Google",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Machine",
+        "target": "Microsoft",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      },
+      {
+        "source": "Deep",
+        "target": "Companies",
+        "relationship": "co_occurs",
+        "description": "Co-occur in chunk 0",
+        "strength": 0.5,
+        "chunk_id": 0,
+        "extraction_method": "co_occurrence"
+      }
+    ]
+  },
+  "performance_metrics": {
+    "total_duration": 9.460509300231934,
+    "step_count": 5,
+    "step_durations": {
+      "document_loading": 0.003028392791748047,
+      "text_chunking": 0.003010988235473633,
+      "entity_extraction": 4.013983249664307,
+      "relationship_analysis": 0.0,
+      "graph_construction": 5.432041645050049
+    },
+    "average_step_duration": 1.8904128551483155,
+    "longest_step": [
+      "graph_construction",
+      5.432041645050049
+    ],
+    "failed_steps": 0
+  }
+}
