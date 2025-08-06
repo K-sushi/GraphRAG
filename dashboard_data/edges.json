@@ -1,0 +1,86 @@
+[
+  {
+    "source": "person_1",
+    "target": "company_1",
+    "relationship": "works at",
+    "weight": 1.0
+  },
+  {
+    "source": "person_1",
+    "target": "project_1",
+    "relationship": "contributes to",
+    "weight": 0.8
+  },
+  {
+    "source": "person_1",
+    "target": "person_3",
+    "relationship": "collaborates with",
+    "weight": 0.8
+  },
+  {
+    "source": "person_2",
+    "target": "company_2",
+    "relationship": "employed by",
+    "weight": 1.0
+  },
+  {
+    "source": "person_2",
+    "target": "project_2",
+    "relationship": "developed",
+    "weight": 0.9
+  },
+  {
+    "source": "person_2",
+    "target": "person_3",
+    "relationship": "knows",
+    "weight": 0.6
+  },
+  {
+    "source": "person_3",
+    "target": "project_1",
+    "relationship": "leads",
+    "weight": 0.9
+  },
+  {
+    "source": "company_1",
+    "target": "tech_2",
+    "relationship": "researches",
+    "weight": 0.7
+  },
+  {
+    "source": "project_1",
+    "target": "tech_2",
+    "relationship": "uses",
+    "weight": 0.8
+  },
+  {
+    "source": "project_1",
+    "target": "concept_1",
+    "relationship": "implements",
+    "weight": 0.9
+  },
+  {
+    "source": "project_2",
+    "target": "tech_1",
+    "relationship": "applies",
+    "weight": 0.7
+  },
+  {
+    "source": "tech_1",
+    "target": "concept_2",
+    "relationship": "related to",
+    "weight": 0.6
+  },
+  {
+    "source": "tech_3",
+    "target": "concept_2",
+    "relationship": "component of",
+    "weight": 0.8
+  },
+  {
+    "source": "concept_1",
+    "target": "concept_2",
+    "relationship": "utilizes",
+    "weight": 0.9
+  }
+]

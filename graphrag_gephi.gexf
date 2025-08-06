@@ -1,0 +1,187 @@
+<?xml version='1.0' encoding='utf-8'?>
+<gexf xmlns="http://www.gexf.net/1.2draft" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.gexf.net/1.2draft http://www.gexf.net/1.2draft/gexf.xsd" version="1.2">
+  <meta lastmodifieddate="2025-08-06">
+    <creator>NetworkX 3.5</creator>
+  </meta>
+  <graph defaultedgetype="undirected" mode="static" name="">
+    <attributes mode="static" class="edge">
+      <attribute id="4" title="relationship" type="string" />
+    </attributes>
+    <attributes mode="static" class="node">
+      <attribute id="0" title="name" type="string" />
+      <attribute id="1" title="type" type="string" />
+      <attribute id="2" title="description" type="string" />
+      <attribute id="3" title="community" type="long" />
+    </attributes>
+    <nodes>
+      <node id="person_1" label="person_1">
+        <attvalues>
+          <attvalue for="0" value="Alice Johnson" />
+          <attvalue for="1" value="Person" />
+          <attvalue for="2" value="Data scientist at TechCorp" />
+          <attvalue for="3" value="0" />
+        </attvalues>
+      </node>
+      <node id="person_2" label="person_2">
+        <attvalues>
+          <attvalue for="0" value="Bob Smith" />
+          <attvalue for="1" value="Person" />
+          <attvalue for="2" value="Machine learning engineer" />
+          <attvalue for="3" value="1" />
+        </attvalues>
+      </node>
+      <node id="person_3" label="person_3">
+        <attvalues>
+          <attvalue for="0" value="Carol Davis" />
+          <attvalue for="1" value="Person" />
+          <attvalue for="2" value="AI researcher" />
+          <attvalue for="3" value="0" />
+        </attvalues>
+      </node>
+      <node id="company_1" label="company_1">
+        <attvalues>
+          <attvalue for="0" value="TechCorp" />
+          <attvalue for="1" value="Organization" />
+          <attvalue for="2" value="Technology company specializing in AI" />
+          <attvalue for="3" value="0" />
+        </attvalues>
+      </node>
+      <node id="company_2" label="company_2">
+        <attvalues>
+          <attvalue for="0" value="DataInc" />
+          <attvalue for="1" value="Organization" />
+          <attvalue for="2" value="Data analytics company" />
+          <attvalue for="3" value="1" />
+        </attvalues>
+      </node>
+      <node id="project_1" label="project_1">
+        <attvalues>
+          <attvalue for="0" value="GraphRAG System" />
+          <attvalue for="1" value="Project" />
+          <attvalue for="2" value="Knowledge graph-based RAG system" />
+          <attvalue for="3" value="0" />
+        </attvalues>
+      </node>
+      <node id="project_2" label="project_2">
+        <attvalues>
+          <attvalue for="0" value="Bitcoin Analysis" />
+          <attvalue for="1" value="Project" />
+          <attvalue for="2" value="Cryptocurrency price prediction" />
+          <attvalue for="3" value="1" />
+        </attvalues>
+      </node>
+      <node id="tech_1" label="tech_1">
+        <attvalues>
+          <attvalue for="0" value="Machine Learning" />
+          <attvalue for="1" value="Technology" />
+          <attvalue for="2" value="AI technique for pattern recognition" />
+          <attvalue for="3" value="1" />
+        </attvalues>
+      </node>
+      <node id="tech_2" label="tech_2">
+        <attvalues>
+          <attvalue for="0" value="Knowledge Graphs" />
+          <attvalue for="1" value="Technology" />
+          <attvalue for="2" value="Graph-based knowledge representation" />
+          <attvalue for="3" value="0" />
+        </attvalues>
+      </node>
+      <node id="tech_3" label="tech_3">
+        <attvalues>
+          <attvalue for="0" value="Natural Language Processing" />
+          <attvalue for="1" value="Technology" />
+          <attvalue for="2" value="AI for text processing" />
+          <attvalue for="3" value="2" />
+        </attvalues>
+      </node>
+      <node id="concept_1" label="concept_1">
+        <attvalues>
+          <attvalue for="0" value="Retrieval Augmented Generation" />
+          <attvalue for="1" value="Concept" />
+          <attvalue for="2" value="RAG methodology" />
+          <attvalue for="3" value="2" />
+        </attvalues>
+      </node>
+      <node id="concept_2" label="concept_2">
+        <attvalues>
+          <attvalue for="0" value="Large Language Models" />
+          <attvalue for="1" value="Concept" />
+          <attvalue for="2" value="LLM technology" />
+          <attvalue for="3" value="2" />
+        </attvalues>
+      </node>
+    </nodes>
+    <edges>
+      <edge source="person_1" target="company_1" id="0" weight="1.0">
+        <attvalues>
+          <attvalue for="4" value="works at" />
+        </attvalues>
+      </edge>
+      <edge source="person_1" target="project_1" id="1" weight="0.8">
+        <attvalues>
+          <attvalue for="4" value="contributes to" />
+        </attvalues>
+      </edge>
+      <edge source="person_1" target="person_3" id="2" weight="0.8">
+        <attvalues>
+          <attvalue for="4" value="collaborates with" />
+        </attvalues>
+      </edge>
+      <edge source="person_2" target="company_2" id="3" weight="1.0">
+        <attvalues>
+          <attvalue for="4" value="employed by" />
+        </attvalues>
+      </edge>
+      <edge source="person_2" target="project_2" id="4" weight="0.9">
+        <attvalues>
+          <attvalue for="4" value="developed" />
+        </attvalues>
+      </edge>
+      <edge source="person_2" target="person_3" id="5" weight="0.6">
+        <attvalues>
+          <attvalue for="4" value="knows" />
+        </attvalues>
+      </edge>
+      <edge source="person_3" target="project_1" id="6" weight="0.9">
+        <attvalues>
+          <attvalue for="4" value="leads" />
+        </attvalues>
+      </edge>
+      <edge source="company_1" target="tech_2" id="7" weight="0.7">
+        <attvalues>
+          <attvalue for="4" value="researches" />
+        </attvalues>
+      </edge>
+      <edge source="project_1" target="tech_2" id="8" weight="0.8">
+        <attvalues>
+          <attvalue for="4" value="uses" />
+        </attvalues>
+      </edge>
+      <edge source="project_1" target="concept_1" id="9" weight="0.9">
+        <attvalues>
+          <attvalue for="4" value="implements" />
+        </attvalues>
+      </edge>
+      <edge source="project_2" target="tech_1" id="10" weight="0.7">
+        <attvalues>
+          <attvalue for="4" value="applies" />
+        </attvalues>
+      </edge>
+      <edge source="tech_1" target="concept_2" id="11" weight="0.6">
+        <attvalues>
+          <attvalue for="4" value="related to" />
+        </attvalues>
+      </edge>
+      <edge source="tech_3" target="concept_2" id="12" weight="0.8">
+        <attvalues>
+          <attvalue for="4" value="component of" />
+        </attvalues>
+      </edge>
+      <edge source="concept_1" target="concept_2" id="13" weight="0.9">
+        <attvalues>
+          <attvalue for="4" value="utilizes" />
+        </attvalues>
+      </edge>
+    </edges>
+  </graph>
+</gexf>

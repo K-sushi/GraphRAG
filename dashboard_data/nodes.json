@@ -1,0 +1,110 @@
+[
+  {
+    "id": "person_1",
+    "name": "Alice Johnson",
+    "type": "Person",
+    "description": "Data scientist at TechCorp",
+    "degree": 3,
+    "degree_centrality": 0.2727272727272727,
+    "betweenness_centrality": 0.1212121212121212
+  },
+  {
+    "id": "person_2",
+    "name": "Bob Smith",
+    "type": "Person",
+    "description": "Machine learning engineer",
+    "degree": 3,
+    "degree_centrality": 0.2727272727272727,
+    "betweenness_centrality": 0.30606060606060603
+  },
+  {
+    "id": "person_3",
+    "name": "Carol Davis",
+    "type": "Person",
+    "description": "AI researcher",
+    "degree": 3,
+    "degree_centrality": 0.2727272727272727,
+    "betweenness_centrality": 0.26969696969696966
+  },
+  {
+    "id": "company_1",
+    "name": "TechCorp",
+    "type": "Organization",
+    "description": "Technology company specializing in AI",
+    "degree": 2,
+    "degree_centrality": 0.18181818181818182,
+    "betweenness_centrality": 0.00909090909090909
+  },
+  {
+    "id": "company_2",
+    "name": "DataInc",
+    "type": "Organization",
+    "description": "Data analytics company",
+    "degree": 1,
+    "degree_centrality": 0.09090909090909091,
+    "betweenness_centrality": 0.0
+  },
+  {
+    "id": "project_1",
+    "name": "GraphRAG System",
+    "type": "Project",
+    "description": "Knowledge graph-based RAG system",
+    "degree": 4,
+    "degree_centrality": 0.36363636363636365,
+    "betweenness_centrality": 0.3757575757575757
+  },
+  {
+    "id": "project_2",
+    "name": "Bitcoin Analysis",
+    "type": "Project",
+    "description": "Cryptocurrency price prediction",
+    "degree": 2,
+    "degree_centrality": 0.18181818181818182,
+    "betweenness_centrality": 0.14242424242424243
+  },
+  {
+    "id": "tech_1",
+    "name": "Machine Learning",
+    "type": "Technology",
+    "description": "AI technique for pattern recognition",
+    "degree": 2,
+    "degree_centrality": 0.18181818181818182,
+    "betweenness_centrality": 0.12727272727272726
+  },
+  {
+    "id": "tech_2",
+    "name": "Knowledge Graphs",
+    "type": "Technology",
+    "description": "Graph-based knowledge representation",
+    "degree": 2,
+    "degree_centrality": 0.18181818181818182,
+    "betweenness_centrality": 0.04242424242424242
+  },
+  {
+    "id": "tech_3",
+    "name": "Natural Language Processing",
+    "type": "Technology",
+    "description": "AI for text processing",
+    "degree": 1,
+    "degree_centrality": 0.09090909090909091,
+    "betweenness_centrality": 0.0
+  },
+  {
+    "id": "concept_1",
+    "name": "Retrieval Augmented Generation",
+    "type": "Concept",
+    "description": "RAG methodology",
+    "degree": 2,
+    "degree_centrality": 0.18181818181818182,
+    "betweenness_centrality": 0.23939393939393938
+  },
+  {
+    "id": "concept_2",
+    "name": "Large Language Models",
+    "type": "Concept",
+    "description": "LLM technology",
+    "degree": 3,
+    "degree_centrality": 0.2727272727272727,
+    "betweenness_centrality": 0.27575757575757576
+  }
+]

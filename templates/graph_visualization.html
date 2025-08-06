@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphRAG Knowledge Graph Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .controls {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .stats {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        #graph-container {
+            position: relative;
+            width: 100%;
+            height: calc(100vh - 200px);
+            overflow: hidden;
+            background: white;
+        }
+        
+        .node {
+            cursor: pointer;
+            stroke: #fff;
+            stroke-width: 2px;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+        
+        .node-label {
+            font-size: 12px;
+            font-weight: bold;
+            text-anchor: middle;
+            pointer-events: none;
+            fill: #333;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            pointer-events: none;
+            max-width: 300px;
+            z-index: 1000;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 18px;
+            color: #667eea;
+        }
+        
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .zoom-btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 12px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 GraphRAG Knowledge Graph Visualization</h1>
+        <p>Interactive exploration of entities and relationships</p>
+    </div>
+    
+    <div class="controls">
+        <input type="text" class="search-box" id="searchBox" placeholder="Search entities...">
+        <select class="filter-select" id="typeFilter">
+            <option value="">All Types</option>
+        </select>
+        <button class="filter-select" onclick="resetView()">Reset View</button>
+    </div>
+    
+    <div class="stats" id="stats">
+        Loading graph statistics...
+    </div>
+    
+    <div id="graph-container">
+        <div class="loading" id="loading">Loading graph data...</div>
+        <div class="zoom-controls">
+            <button class="zoom-btn" onclick="zoomIn()">+</button>
+            <button class="zoom-btn" onclick="zoomOut()">−</button>
+        </div>
+        <div class="legend" id="legend" style="display: none;">
+            <h4>Node Types</h4>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="tooltip" style="display: none;"></div>
+
+    <script>
+        // Global variables
+        let svg, simulation, graphData, zoom;
+        const width = window.innerWidth;
+        const height = window.innerHeight - 200;
+        
+        // Color scale for node types
+        const color = d3.scaleOrdinal(d3.schemeCategory10);
+        
+        // Initialize visualization
+        async function initVisualization() {
+            try {
+                const response = await fetch('/api/graph');
+                graphData = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                updateStats();
+                createVisualization();
+                populateTypeFilter();
+                
+            } catch (error) {
+                console.error('Error loading graph data:', error);
+                document.getElementById('loading').innerText = 'Error loading graph data';
+            }
+        }
+        
+        function updateStats() {
+            const stats = graphData.stats;
+            document.getElementById('stats').innerHTML = `
+                📊 <strong>${stats.node_count}</strong> entities • 
+                🔗 <strong>${stats.edge_count}</strong> relationships • 
+                📈 Density: <strong>${stats.density.toFixed(4)}</strong>
+            `;
+        }
+        
+        function populateTypeFilter() {
+            const typeFilter = document.getElementById('typeFilter');
+            const types = [...new Set(graphData.nodes.map(d => d.type))].sort();
+            
+            types.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+        }
+        
+        function createVisualization() {
+            // Create SVG
+            svg = d3.select('#graph-container')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+            
+            // Add zoom behavior
+            zoom = d3.zoom()
+                .scaleExtent([0.1, 10])
+                .on('zoom', (event) => {
+                    svg.selectAll('.graph-group').attr('transform', event.transform);
+                });
+            
+            svg.call(zoom);
+            
+            // Create main group for graph elements
+            const g = svg.append('g').attr('class', 'graph-group');
+            
+            // Create force simulation
+            simulation = d3.forceSimulation(graphData.nodes)
+                .force('link', d3.forceLink(graphData.links).id(d => d.id).distance(100))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(d => Math.sqrt(d.degree) * 3 + 5));
+            
+            // Create links
+            const link = g.append('g')
+                .selectAll('.link')
+                .data(graphData.links)
+                .enter().append('line')
+                .attr('class', 'link')
+                .attr('stroke-width', d => Math.sqrt(d.weight) * 2);
+            
+            // Create nodes
+            const node = g.append('g')
+                .selectAll('.node')
+                .data(graphData.nodes)
+                .enter().append('circle')
+                .attr('class', 'node')
+                .attr('r', d => Math.sqrt(d.degree) * 3 + 5)
+                .attr('fill', d => color(d.group))
+                .on('mouseover', showTooltip)
+                .on('mouseout', hideTooltip)
+                .on('click', selectNode)
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+            
+            // Create labels
+            const label = g.append('g')
+                .selectAll('.node-label')
+                .data(graphData.nodes.filter(d => d.degree > 3))
+                .enter().append('text')
+                .attr('class', 'node-label')
+                .text(d => d.name.length > 15 ? d.name.substring(0, 15) + '...' : d.name);
+            
+            // Update simulation
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+                
+                node
+                    .attr('cx', d => d.x)
+                    .attr('cy', d => d.y);
+                
+                label
+                    .attr('x', d => d.x)
+                    .attr('y', d => d.y - Math.sqrt(d.degree) * 3 - 10);
+            });
+            
+            // Create legend
+            createLegend();
+        }
+        
+        function createLegend() {
+            const legend = document.getElementById('legend');
+            const types = [...new Set(graphData.nodes.map(d => d.type))].sort();
+            
+            types.forEach((type, i) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${color(i)}"></div>
+                    <span>${type}</span>
+                `;
+                legend.appendChild(item);
+            });
+            
+            legend.style.display = 'block';
+        }
+        
+        function showTooltip(event, d) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.innerHTML = `
+                <strong>${d.name}</strong><br>
+                Type: ${d.type}<br>
+                Connections: ${d.degree}<br>
+                Description: ${d.description.substring(0, 200)}${d.description.length > 200 ? '...' : ''}
+            `;
+            tooltip.style.display = 'block';
+            tooltip.style.left = (event.pageX + 10) + 'px';
+            tooltip.style.top = (event.pageY - 10) + 'px';
+        }
+        
+        function hideTooltip() {
+            document.getElementById('tooltip').style.display = 'none';
+        }
+        
+        function selectNode(event, d) {
+            // Highlight selected node and its neighbors
+            svg.selectAll('.node').style('opacity', 0.3);
+            svg.selectAll('.link').style('opacity', 0.1);
+            
+            // Highlight selected node
+            d3.select(event.target).style('opacity', 1).attr('stroke', '#ff6b6b').attr('stroke-width', 3);
+            
+            // Highlight connected nodes and links
+            const connectedNodes = new Set([d.id]);
+            graphData.links.forEach(link => {
+                if (link.source.id === d.id) {
+                    connectedNodes.add(link.target.id);
+                } else if (link.target.id === d.id) {
+                    connectedNodes.add(link.source.id);
+                }
+            });
+            
+            svg.selectAll('.node').filter(node => connectedNodes.has(node.id))
+                .style('opacity', 1);
+            
+            svg.selectAll('.link').filter(link => 
+                link.source.id === d.id || link.target.id === d.id)
+                .style('opacity', 0.8);
+        }
+        
+        function resetView() {
+            svg.selectAll('.node')
+                .style('opacity', 1)
+                .attr('stroke', '#fff')
+                .attr('stroke-width', 2);
+            
+            svg.selectAll('.link').style('opacity', 0.6);
+            
+            // Reset zoom
+            svg.transition().duration(750).call(
+                zoom.transform,
+                d3.zoomIdentity
+            );
+        }
+        
+        function zoomIn() {
+            svg.transition().call(zoom.scaleBy, 1.5);
+        }
+        
+        function zoomOut() {
+            svg.transition().call(zoom.scaleBy, 1 / 1.5);
+        }
+        
+        // Drag functions
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+        
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+        
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+        
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', async (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query.length < 2) {
+                resetView();
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+                const results = await response.json();
+                
+                // Highlight matching nodes
+                svg.selectAll('.node').style('opacity', 0.2);
+                
+                results.forEach(result => {
+                    svg.selectAll('.node').filter(d => d.id === result.id)
+                        .style('opacity', 1)
+                        .attr('stroke', '#ff6b6b')
+                        .attr('stroke-width', 3);
+                });
+                
+            } catch (error) {
+                console.error('Search error:', error);
+            }
+        });
+        
+        // Type filter functionality
+        document.getElementById('typeFilter').addEventListener('change', (e) => {
+            const selectedType = e.target.value;
+            
+            if (!selectedType) {
+                resetView();
+                return;
+            }
+            
+            svg.selectAll('.node').style('opacity', d => d.type === selectedType ? 1 : 0.2);
+        });
+        
+        // Initialize when page loads
+        window.addEventListener('load', initVisualization);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight - 200;
+            
+            svg.attr('width', newWidth).attr('height', newHeight);
+            simulation.force('center', d3.forceCenter(newWidth / 2, newHeight / 2));
+            simulation.alpha(0.3).restart();
+        });
+    </script>
+</body>
+</html>

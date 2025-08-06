@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d5" for="edge" attr.name="weight" attr.type="double"/>
+<key id="d4" for="edge" attr.name="relationship" attr.type="string"/>
+<key id="d3" for="node" attr.name="description" attr.type="string"/>
+<key id="d2" for="node" attr.name="type" attr.type="string"/>
+<key id="d1" for="node" attr.name="name" attr.type="string"/>
+<key id="d0" for="node" attr.name="id" attr.type="string"/>
+<graph edgedefault="undirected"><node id="person_1">
+  <data key="d0">person_1</data>
+  <data key="d1">Alice Johnson</data>
+  <data key="d2">Person</data>
+  <data key="d3">Data scientist at TechCorp</data>
+</node>
+<node id="person_2">
+  <data key="d0">person_2</data>
+  <data key="d1">Bob Smith</data>
+  <data key="d2">Person</data>
+  <data key="d3">Machine learning engineer</data>
+</node>
+<node id="person_3">
+  <data key="d0">person_3</data>
+  <data key="d1">Carol Davis</data>
+  <data key="d2">Person</data>
+  <data key="d3">AI researcher</data>
+</node>
+<node id="company_1">
+  <data key="d0">company_1</data>
+  <data key="d1">TechCorp</data>
+  <data key="d2">Organization</data>
+  <data key="d3">Technology company specializing in AI</data>
+</node>
+<node id="company_2">
+  <data key="d0">company_2</data>
+  <data key="d1">DataInc</data>
+  <data key="d2">Organization</data>
+  <data key="d3">Data analytics company</data>
+</node>
+<node id="project_1">
+  <data key="d0">project_1</data>
+  <data key="d1">GraphRAG System</data>
+  <data key="d2">Project</data>
+  <data key="d3">Knowledge graph-based RAG system</data>
+</node>
+<node id="project_2">
+  <data key="d0">project_2</data>
+  <data key="d1">Bitcoin Analysis</data>
+  <data key="d2">Project</data>
+  <data key="d3">Cryptocurrency price prediction</data>
+</node>
+<node id="tech_1">
+  <data key="d0">tech_1</data>
+  <data key="d1">Machine Learning</data>
+  <data key="d2">Technology</data>
+  <data key="d3">AI technique for pattern recognition</data>
+</node>
+<node id="tech_2">
+  <data key="d0">tech_2</data>
+  <data key="d1">Knowledge Graphs</data>
+  <data key="d2">Technology</data>
+  <data key="d3">Graph-based knowledge representation</data>
+</node>
+<node id="tech_3">
+  <data key="d0">tech_3</data>
+  <data key="d1">Natural Language Processing</data>
+  <data key="d2">Technology</data>
+  <data key="d3">AI for text processing</data>
+</node>
+<node id="concept_1">
+  <data key="d0">concept_1</data>
+  <data key="d1">Retrieval Augmented Generation</data>
+  <data key="d2">Concept</data>
+  <data key="d3">RAG methodology</data>
+</node>
+<node id="concept_2">
+  <data key="d0">concept_2</data>
+  <data key="d1">Large Language Models</data>
+  <data key="d2">Concept</data>
+  <data key="d3">LLM technology</data>
+</node>
+<edge source="person_1" target="company_1">
+  <data key="d4">works at</data>
+  <data key="d5">1.0</data>
+</edge>
+<edge source="person_1" target="project_1">
+  <data key="d4">contributes to</data>
+  <data key="d5">0.8</data>
+</edge>
+<edge source="person_1" target="person_3">
+  <data key="d4">collaborates with</data>
+  <data key="d5">0.8</data>
+</edge>
+<edge source="person_2" target="company_2">
+  <data key="d4">employed by</data>
+  <data key="d5">1.0</data>
+</edge>
+<edge source="person_2" target="project_2">
+  <data key="d4">developed</data>
+  <data key="d5">0.9</data>
+</edge>
+<edge source="person_2" target="person_3">
+  <data key="d4">knows</data>
+  <data key="d5">0.6</data>
+</edge>
+<edge source="person_3" target="project_1">
+  <data key="d4">leads</data>
+  <data key="d5">0.9</data>
+</edge>
+<edge source="company_1" target="tech_2">
+  <data key="d4">researches</data>
+  <data key="d5">0.7</data>
+</edge>
+<edge source="project_1" target="tech_2">
+  <data key="d4">uses</data>
+  <data key="d5">0.8</data>
+</edge>
+<edge source="project_1" target="concept_1">
+  <data key="d4">implements</data>
+  <data key="d5">0.9</data>
+</edge>
+<edge source="project_2" target="tech_1">
+  <data key="d4">applies</data>
+  <data key="d5">0.7</data>
+</edge>
+<edge source="tech_1" target="concept_2">
+  <data key="d4">related to</data>
+  <data key="d5">0.6</data>
+</edge>
+<edge source="tech_3" target="concept_2">
+  <data key="d4">component of</data>
+  <data key="d5">0.8</data>
+</edge>
+<edge source="concept_1" target="concept_2">
+  <data key="d4">utilizes</data>
+  <data key="d5">0.9</data>
+</edge>
+</graph></graphml>

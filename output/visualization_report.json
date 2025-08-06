@@ -1,0 +1,255 @@
+{
+  "basic_stats": {
+    "nodes": 12,
+    "edges": 14,
+    "density": 0.21212121212121213,
+    "connected_components": 1
+  },
+  "centrality": {
+    "top_degree_nodes": [
+      {
+        "node": "project_1",
+        "name": "GraphRAG System",
+        "score": 0.36363636363636365
+      },
+      {
+        "node": "person_1",
+        "name": "Alice Johnson",
+        "score": 0.2727272727272727
+      },
+      {
+        "node": "person_2",
+        "name": "Bob Smith",
+        "score": 0.2727272727272727
+      },
+      {
+        "node": "person_3",
+        "name": "Carol Davis",
+        "score": 0.2727272727272727
+      },
+      {
+        "node": "concept_2",
+        "name": "Large Language Models",
+        "score": 0.2727272727272727
+      },
+      {
+        "node": "company_1",
+        "name": "TechCorp",
+        "score": 0.18181818181818182
+      },
+      {
+        "node": "project_2",
+        "name": "Bitcoin Analysis",
+        "score": 0.18181818181818182
+      },
+      {
+        "node": "tech_1",
+        "name": "Machine Learning",
+        "score": 0.18181818181818182
+      },
+      {
+        "node": "tech_2",
+        "name": "Knowledge Graphs",
+        "score": 0.18181818181818182
+      },
+      {
+        "node": "concept_1",
+        "name": "Retrieval Augmented Generation",
+        "score": 0.18181818181818182
+      }
+    ],
+    "top_betweenness_nodes": [
+      {
+        "node": "project_1",
+        "name": "GraphRAG System",
+        "score": 0.3757575757575757
+      },
+      {
+        "node": "person_2",
+        "name": "Bob Smith",
+        "score": 0.30606060606060603
+      },
+      {
+        "node": "concept_2",
+        "name": "Large Language Models",
+        "score": 0.27575757575757576
+      },
+      {
+        "node": "person_3",
+        "name": "Carol Davis",
+        "score": 0.26969696969696966
+      },
+      {
+        "node": "concept_1",
+        "name": "Retrieval Augmented Generation",
+        "score": 0.23939393939393938
+      },
+      {
+        "node": "project_2",
+        "name": "Bitcoin Analysis",
+        "score": 0.14242424242424243
+      },
+      {
+        "node": "tech_1",
+        "name": "Machine Learning",
+        "score": 0.12727272727272726
+      },
+      {
+        "node": "person_1",
+        "name": "Alice Johnson",
+        "score": 0.1212121212121212
+      },
+      {
+        "node": "tech_2",
+        "name": "Knowledge Graphs",
+        "score": 0.04242424242424242
+      },
+      {
+        "node": "company_1",
+        "name": "TechCorp",
+        "score": 0.00909090909090909
+      }
+    ],
+    "top_closeness_nodes": [
+      {
+        "node": "project_1",
+        "name": "GraphRAG System",
+        "score": 0.5
+      },
+      {
+        "node": "person_3",
+        "name": "Carol Davis",
+        "score": 0.4782608695652174
+      },
+      {
+        "node": "person_2",
+        "name": "Bob Smith",
+        "score": 0.44
+      },
+      {
+        "node": "concept_1",
+        "name": "Retrieval Augmented Generation",
+        "score": 0.44
+      },
+      {
+        "node": "person_1",
+        "name": "Alice Johnson",
+        "score": 0.4230769230769231
+      },
+      {
+        "node": "concept_2",
+        "name": "Large Language Models",
+        "score": 0.4074074074074074
+      },
+      {
+        "node": "project_2",
+        "name": "Bitcoin Analysis",
+        "score": 0.39285714285714285
+      },
+      {
+        "node": "tech_1",
+        "name": "Machine Learning",
+        "score": 0.36666666666666664
+      },
+      {
+        "node": "tech_2",
+        "name": "Knowledge Graphs",
+        "score": 0.36666666666666664
+      },
+      {
+        "node": "company_1",
+        "name": "TechCorp",
+        "score": 0.3235294117647059
+      }
+    ]
+  },
+  "community_analysis": {
+    "total_communities": 3,
+    "community_sizes": {
+      "0": 5,
+      "1": 4,
+      "2": 3
+    },
+    "community_entities": {
+      "0": [
+        {
+          "id": "person_1",
+          "name": "Alice Johnson",
+          "type": "Person",
+          "degree": 3
+        },
+        {
+          "id": "person_3",
+          "name": "Carol Davis",
+          "type": "Person",
+          "degree": 3
+        },
+        {
+          "id": "company_1",
+          "name": "TechCorp",
+          "type": "Organization",
+          "degree": 2
+        },
+        {
+          "id": "project_1",
+          "name": "GraphRAG System",
+          "type": "Project",
+          "degree": 4
+        },
+        {
+          "id": "tech_2",
+          "name": "Knowledge Graphs",
+          "type": "Technology",
+          "degree": 2
+        }
+      ],
+      "1": [
+        {
+          "id": "person_2",
+          "name": "Bob Smith",
+          "type": "Person",
+          "degree": 3
+        },
+        {
+          "id": "company_2",
+          "name": "DataInc",
+          "type": "Organization",
+          "degree": 1
+        },
+        {
+          "id": "project_2",
+          "name": "Bitcoin Analysis",
+          "type": "Project",
+          "degree": 2
+        },
+        {
+          "id": "tech_1",
+          "name": "Machine Learning",
+          "type": "Technology",
+          "degree": 2
+        }
+      ],
+      "2": [
+        {
+          "id": "tech_3",
+          "name": "Natural Language Processing",
+          "type": "Technology",
+          "degree": 1
+        },
+        {
+          "id": "concept_1",
+          "name": "Retrieval Augmented Generation",
+          "type": "Concept",
+          "degree": 2
+        },
+        {
+          "id": "concept_2",
+          "name": "Large Language Models",
+          "type": "Concept",
+          "degree": 3
+        }
+      ]
+    },
+    "modularity": 0.4364035087719299
+  }
+}
