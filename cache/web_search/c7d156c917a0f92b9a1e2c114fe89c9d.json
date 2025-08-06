@@ -1,0 +1,24 @@
+{
+  "query": "What is Bitcoin worth right now?",
+  "response": "As of August 6th, 2025, the price of Bitcoin (BTC) varies slightly depending on the source.  Several reputable sources show prices ranging from approximately $113,577 to $114,363.99.  The market capitalization also varies slightly across sources, generally falling within the range of $2.26 trillion to $2.27 trillion.  It's important to note that cryptocurrency prices are highly volatile and change constantly.  Therefore, these figures are snapshots in time and may not reflect the current price if viewed later.\n",
+  "sources": [],
+  "metadata": {
+    "query": "What is Bitcoin worth right now?",
+    "search_time": "2025-08-06T13:17:13.681075",
+    "model_used": "gemini-1.5-flash-002",
+    "response_length": 516,
+    "sources_found": 0,
+    "search_quality": {
+      "overall_score": 0.5,
+      "factors": [
+        "detailed_response",
+        "contains_data",
+        "recent_information"
+      ],
+      "assessment": "medium"
+    }
+  },
+  "cached": false,
+  "search_timestamp": "2025-08-06T13:17:13.681075",
+  "cached_at": "2025-08-06T13:17:13.681075"
+}

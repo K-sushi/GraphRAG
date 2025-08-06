@@ -53,8 +53,8 @@ class GeminiWebSearchProvider:
         # Configure Gemini
         genai.configure(api_key=api_key)
         
-        # Model selection for different operations
-        self.search_model = self.config.get("search_model", "gemini-2.0-flash-exp")  # Fast for search
+        # Model selection for different operations - Use 1.5 models for reliable web search
+        self.search_model = self.config.get("search_model", "gemini-1.5-flash-002")  # Fast for search with web grounding
         self.analysis_model = self.config.get("analysis_model", "gemini-1.5-pro-002")  # Deep for analysis
         self.synthesis_model = self.config.get("synthesis_model", "gemini-1.5-flash-002")  # Balanced
         
@@ -128,8 +128,23 @@ Return JSON format:
                 )
             )
             
+            # Extract response text and clean it
+            response_text = response.text.strip()
+            
+            # Try to extract JSON from response (sometimes wrapped in code blocks)
+            if "```json" in response_text:
+                json_start = response_text.find("```json") + 7
+                json_end = response_text.find("```", json_start)
+                if json_end > json_start:
+                    response_text = response_text[json_start:json_end].strip()
+            elif "{" in response_text and "}" in response_text:
+                # Extract JSON part from response
+                json_start = response_text.find("{")
+                json_end = response_text.rfind("}") + 1
+                response_text = response_text[json_start:json_end]
+            
             # Parse JSON response
-            result = json.loads(response.text.strip())
+            result = json.loads(response_text)
             
             # Add metadata
             result["analyzed_at"] = datetime.now().isoformat()
@@ -139,7 +154,7 @@ Return JSON format:
             return result
             
         except json.JSONDecodeError as e:
-            logger.warning(f"Failed to parse freshness analysis JSON: {e}")
+            logger.warning(f"Failed to parse freshness analysis JSON: {e}. Response: {response.text[:200]}...")
             return {
                 "requires_web_search": True,  # Default to safe side
                 "confidence": 0.5,
@@ -179,13 +194,23 @@ Return JSON format:
             # Prepare search prompt with grounding instructions
             search_prompt = self._build_search_prompt(query, search_params)
             
-            # Use Gemini with web grounding - Correct syntax for google.generativeai library
-            logger.info(f"Using google_search_retrieval tool for model: {self.search_model}")
+            # Use Gemini with web grounding - Updated for 2025 API syntax
+            logger.info(f"Using google_search tool (2025 syntax) for model: {self.search_model}")
             
-            model = genai.GenerativeModel(
-                self.search_model,
-                tools='google_search_retrieval'  # Correct string syntax for legacy library
-            )
+            # For Gemini 1.5 models: Use legacy google_search_retrieval with simplified syntax
+            # For newer models: Use google_search tool
+            if "1.5" in self.search_model:
+                # Legacy approach with simplified syntax for backward compatibility
+                model = genai.GenerativeModel(
+                    self.search_model,
+                    tools='google_search_retrieval'  # Simplified syntax for Gemini 1.5
+                )
+            else:
+                # Modern approach for newer models
+                model = genai.GenerativeModel(
+                    self.search_model,
+                    tools='google_search'  # New syntax for Gemini 2.0+
+                )
             
             response = await asyncio.to_thread(
                 model.generate_content,

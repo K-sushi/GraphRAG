@@ -1,0 +1,43 @@
+{
+  "test_queries": [
+    "What is the current price of Bitcoin and how has it changed in the last 24 hours?",
+    "How is climate change affecting global agriculture and food security?",
+    "What are the latest developments in quantum computing research?",
+    "Explain the impact of artificial intelligence on healthcare in 2024",
+    "What are the current trends in renewable energy adoption worldwide?",
+    "How do large language models like GPT and Gemini compare in performance?",
+    "What are the main challenges facing electric vehicle adoption?",
+    "How is blockchain technology being used beyond cryptocurrency?",
+    "What are the latest breakthroughs in gene therapy and CRISPR?",
+    "How is 5G technology transforming telecommunications infrastructure?"
+  ],
+  "concurrency_levels": [1, 2, 4, 8, 16],
+  "iterations_per_test": 5,
+  "warm_up_iterations": 2,
+  "enable_memory_profiling": true,
+  "performance_targets": {
+    "max_response_time_seconds": 10.0,
+    "max_memory_mb": 2048,
+    "max_cpu_percent": 80.0,
+    "min_success_rate": 0.95,
+    "target_throughput_qps": 2.0
+  },
+  "component_timeouts": {
+    "gemini_api_timeout": 30,
+    "web_search_timeout": 30,
+    "graphrag_timeout": 60,
+    "vector_search_timeout": 10
+  },
+  "optimization_flags": {
+    "enable_caching": true,
+    "parallel_processing": true,
+    "streaming_responses": false,
+    "memory_optimization": true
+  },
+  "perplexity_style_features": {
+    "real_time_search": true,
+    "source_attribution": true,
+    "context_synthesis": true,
+    "streaming_ui": false
+  }
+}
